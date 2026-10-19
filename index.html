@@ -259,6 +259,12 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surf
 }
 .scroller .chip{flex:none;white-space:nowrap}
 .chip.sm{padding:6px 13px;font-size:13px}
+.rowlabel{font-size:11px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);margin:16px 2px 7px}
+.rowlabel span{letter-spacing:.02em;text-transform:none;font-weight:500}
+.rowlabel .linkbtn{font-size:11px;font-weight:600}
+/* Filters stack, so they get their own selected look: lime with a check, distinct from the solid dark type pick. */
+.chip.filt[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:#1B2606;font-weight:600}
+.chip.filt[aria-pressed="true"]::before{content:"✓";font-weight:700;margin-right:-2px}
 details.cuis{margin-top:12px}
 details.cuis summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2);list-style:none;padding:4px 2px}
 details.cuis summary::-webkit-details-marker{display:none}
@@ -928,10 +934,12 @@ function vBuilder(){
 function vCook(){
   const c=S.cook;
   return`<input class="search" id="rq" type="search" enterkeyhint="search" placeholder="Search ${RECIPES.length} recipes — try “lentil” or “gnocchi”" value="${esc(c.q)}" autocomplete="off" aria-label="Search recipes">
-  <div class="scroller" style="margin-top:14px" role="group" aria-label="Type">${KGROUPS.map(([id,l])=>
+  <p class="rowlabel">Type <span>· pick one</span></p>
+  <div class="scroller" role="group" aria-label="Type">${KGROUPS.map(([id,l])=>
     `<button class="chip plain sm" data-kind="${id}" aria-pressed="${c.kind===id}">${l}</button>`).join("")}</div>
-  <div class="scroller" style="margin-top:8px" role="group" aria-label="Filters">${FILTERS.map(([id,l])=>
-    `<button class="chip sm" data-filt="${id}" aria-pressed="${c.f.includes(id)}">${l}</button>`).join("")}</div>
+  <p class="rowlabel">Filters <span>· ${c.f.length?`${c.f.length} on · <button class="linkbtn" data-act="clearfilts">Clear</button>`:"mix and match"}</span></p>
+  <div class="scroller" role="group" aria-label="Filters">${FILTERS.map(([id,l])=>
+    `<button class="chip sm filt" data-filt="${id}" aria-pressed="${c.f.includes(id)}">${l}</button>`).join("")}</div>
   <details class="cuis" ${c.cuOpen?"open":""}><summary>Cuisine · <span class="muted">${c.cu.length?esc(c.cu.map(id=>cui(id).name).join(", ")):"any"}</span></summary>
    <div class="chips" style="margin-top:10px">${CUISINES.map(x=>
     `<button class="chip sm" data-rcu="${x.id}" style="--dot:${x.color}" aria-pressed="${c.cu.includes(x.id)}"><span class="dot"></span>${esc(x.name)}</button>`).join("")}</div></details>
@@ -1267,6 +1275,7 @@ document.addEventListener("click",e=>{
     if(list.length)recipeSheet(rnd(fresh.length?fresh:list));
     return;
   }
+  if(act==="clearfilts"){S.cook.f=[];cookShown=12;save();view(true);return;}
   if(act==="clearfilt"){Object.assign(S.cook,{kind:"all",f:[],cu:[],q:""});cookShown=12;save();view(true);return;}
   if(act==="picker"){pickSel=[];pickerSheet();return;}
   if(act==="findlike"){
