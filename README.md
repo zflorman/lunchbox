@@ -2,10 +2,12 @@
 
 A single-page meal-prep planner built around Trader Joe's. Open `index.html` in a browser — there's no build step.
 
-- **Assemble** mode generates layered lunch bowls that hit your protein and calorie window.
-- **Cook** mode is a library of 800+ recipes (soups, bowls, salads, pasta, tacos and wraps, sheet pans, curries,
+- **Discover** is a library of 800+ recipes (soups, bowls, salads, pasta, tacos and wraps, sheet pans, curries,
   snack boxes, freezer meals and TJ's shortcut hacks) with search, filters, scaling, aisle-grouped shopping lists
   and a freezer tracker.
+- The **Bowls** tab also has a bowl builder that generates layered bowls inside your protein and calorie window,
+  using the same cuisine picks and meatless filter as the library.
+- Banning an ingredient hides it from both recipes and built bowls.
 
 Everything you save lives in your browser's `localStorage`.
 

@@ -260,6 +260,16 @@ details.cuis[open] summary::after{content:" ▴"}
 .callout{background:var(--surface);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);font-size:14px;margin-top:12px;line-height:1.55}
 .callout .eyebrow{margin-bottom:3px}
 .pillbtn{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink-2);border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 12px;flex:none}
+.builder{background:var(--ink);color:var(--ground);border-radius:var(--r-card);padding:16px;margin:16px 0 6px}
+.builder .wk{font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--lime)}
+.builder .wt{font-size:14px;margin-top:4px;line-height:1.45;opacity:.9}
+.builder .bacts{display:flex;gap:8px;margin-top:12px}
+.builder .go{background:var(--lime);color:#1B2606;border-radius:var(--r-pill);padding:9px 16px;font-size:14px;font-weight:600}
+.builder .go.alt{background:rgba(255,255,255,.14);color:var(--ground)}
+.promo{display:flex;align-items:center;justify-content:space-between;gap:12px;width:100%;text-align:left;margin:16px 0 4px;
+  background:var(--surface);border:1.5px dashed var(--line-strong);border-radius:var(--r-card);padding:13px 16px;font-size:13px;color:var(--ink-2)}
+.promo b{font-size:15px;color:var(--ink);font-family:'Bricolage Grotesque',sans-serif}
+.promo svg{width:26px;height:26px;color:var(--lime-deep);flex:none}
 .lovenote{text-align:center;font-size:12px;color:var(--ink-3);padding:26px 24px 14px;letter-spacing:.01em}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 :focus-visible{outline:2.5px solid var(--lime-deep);outline-offset:2px;border-radius:6px}
@@ -444,7 +454,7 @@ const TOPPERS=[
 ];
 
 const LS="prepapp.v1";
-const DEF={tab:"discover",mode:null,adv:false,cuisines:["mex","med","grk","asn"],
+const DEF={tab:"discover",
   saved:[],savedR:[],week:null,checked:{},banned:[],history:[],freezer:[],
   cook:{kind:"all",f:[],cu:[],q:"",sort:"mix",cuOpen:false},
   s:{pMin:30,pMax:42,cMin:380,cMax:560,servings:5}};
@@ -468,7 +478,6 @@ function load(){
 }
 function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
 function season(){const m=new Date().getMonth();return(m>=9||m<=3)?"cook":"assemble";}
-if(!S.mode)S.mode=season();
 function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 const POOLS={base:BASES,hero:PROTEINS,booster:PROTEINS,mixin:MIXINS,dressing:DRESSINGS,topper:TOPPERS};
@@ -476,7 +485,12 @@ const BYID={};[PROTEINS,BASES,MIXINS,DRESSINGS,TOPPERS].forEach(a=>a.forEach(i=>
 const cui=id=>CUISINES.find(c=>c.id===id)||CUISINES[0];
 
 function rnd(a){return a[Math.floor(Math.random()*a.length)];}
-function ok(i,c){return i.cuisines.includes(c)&&!S.banned.includes(i.id);}
+// Eggs and cottage cheese are vegetarian even though they aren't flagged as plant proteins.
+const VEG_OK=["hardegg","cottage"];
+function ok(i,c){
+  if(!i.cuisines.includes(c)||S.banned.includes(i.id))return false;
+  return !(S.cook.f.includes("veg")&&PROTEINS.includes(i)&&!i.veg&&!VEG_OK.includes(i.id));
+}
 function pool(arr,c,f){return arr.filter(i=>ok(i,c)&&(!f||f(i)));}
 
 function macros(b){
@@ -561,8 +575,12 @@ function generate(n,must){
   }
   return out;
 }
-// Bowls only draw from cuisines the bowl ingredients cover; cook-only cuisines live in the recipe library.
-function activeCuisines(){return S.cuisines.filter(id=>!cui(id).cookOnly&&(S.adv||!cui(id).adv));}
+// The bowl builder uses the library's cuisine picks. Cuisines the bowl ingredients don't cover borrow the closest one.
+const BOWL_CUI={ita:"med",ame:"cal",caj:"mex",eeu:"med",spa:"med",vie:"asn",car:"mex",haw:"jpn",waf:"naf"};
+function activeCuisines(){
+  const picks=S.cook.cu.length?S.cook.cu:CUISINES.filter(c=>!c.cookOnly).map(c=>c.id);
+  return[...new Set(picks.map(id=>BOWL_CUI[id]||id))];
+}
 
 function swap(b,slot,idx){
   const c=b.cuisine;
@@ -678,7 +696,7 @@ RECIPES.forEach(r=>{r._s=[r.name,cui(r.cu).name,KINDS[r.kind],...r.tags.map(t=>T
 function cookList(){
   const c=S.cook,q=c.q.trim().toLowerCase(),g=(KGROUPS.find(k=>k[0]===c.kind)||KGROUPS[0])[2];
   const fs=FILTERS.filter(f=>c.f.includes(f[0]));
-  const list=RECIPES.filter(r=>(!g||g.includes(r.kind))&&(!c.cu.length||c.cu.includes(r.cu))
+  const list=RECIPES.filter(r=>(!g||g.includes(r.kind))&&(!c.cu.length||c.cu.includes(r.cu))&&!r.ing.some(x=>S.banned.includes(x[0]))
     &&fs.every(f=>f[2](r))&&(!q||q.split(/\s+/).every(w=>r._s.includes(w))));
   if(c.sort==="protein")return list.sort((a,b)=>b.p-a.p);
   if(c.sort==="quick")return list.sort((a,b)=>a.min-b.min);
@@ -837,6 +855,7 @@ function shoppingItems(){
     .filter(i=>i&&!i.skip&&i.id!=="none")
     .map(i=>({name:i.name,q:qty(i,n),key:i.id,aisle:bowlAisle(i)}));
 }
+const banName=id=>(BYID[id]&&BYID[id].name)||(TJ[id]&&tjName(id))||id;
 const seasonNote=p=>`${p.s==="new"?"New at TJ's":inSeason(p)?"Seasonal at TJ's":"Usually a "+SEASON_NAME[p.s]+" item at TJ's"} — if it's gone, use ${esc(tjName(p.sub).toLowerCase())}`;
 
 const LOVE_NOTE="Made with love, just for you.";
@@ -866,37 +885,25 @@ function vTabs(){
 }
 
 function vDiscover(){
-  const isCook=S.mode==="cook";
   return`<header class="top">
     <div class="top-row"><div>
       <p class="eyebrow">${new Date().toLocaleDateString(undefined,{month:"long",day:"numeric"})} · ${season()==="cook"?"cold months":"warm months"}</p>
-      <h1>${!isCook?"Lunch, sorted<br>by Monday.":season()==="cook"?"Something warm<br>for the week.":"Cook once,<br>eat all week."}</h1>
+      <h1>${season()==="cook"?"Something warm<br>for the week.":"Lunch, sorted<br>by Monday."}</h1>
     </div></div>
   </header>
-  <div class="seg" role="group" aria-label="Cooking mode" style="margin-bottom:16px">
-    <button data-mode="assemble" aria-pressed="${!isCook}">Assemble bowls</button>
-    <button data-mode="cook" aria-pressed="${isCook}">Cook</button>
-  </div>
   ${weekBar()}
-  ${isCook?vCook():vAssemble()}`;
+  ${vCook()}`;
 }
 
-function vAssemble(){
-  const cs=CUISINES.filter(c=>!c.cookOnly&&(S.adv||!c.adv));
-  const list=results;
-  return`<p class="eyebrow" style="margin-bottom:9px">How far out there</p>
-  <div class="seg" style="margin-bottom:18px" role="group" aria-label="Adventurousness">
-    <button data-adv="0" aria-pressed="${!S.adv}">Standard</button>
-    <button data-adv="1" aria-pressed="${S.adv}">Adventurous</button>
-  </div>
-  <p class="eyebrow" style="margin-bottom:9px">Cuisines</p>
-  <div class="chips" style="margin-bottom:20px">${cs.map(c=>
-    `<button class="chip" data-cui="${c.id}" style="--dot:${c.color}" aria-pressed="${S.cuisines.includes(c.id)}"><span class="dot"></span>${esc(c.name)}</button>`).join("")}</div>
-  <button class="btn btn-primary" data-act="gen" style="margin-bottom:8px">${list.length?"Shuffle new ideas":"Build my week"}</button>
-  ${list.length?`<button class="btn btn-ghost" data-act="picker" style="margin-bottom:22px">Not feeling these — let me pick</button>`:`<p class="muted" style="font-size:13px;text-align:center;padding:10px 20px 22px">Every bowl lands in your protein window and layers so it won't go soggy.</p>`}
-  ${list.length?`<div class="section-h"><h2>${list.length} bowls</h2><button class="linkbtn" data-act="gen">Shuffle</button></div>`:""}
-  ${list.map(b=>bowlCard(b,"results")).join("")}
-  ${list.length?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Load 12 more bowls</button>`:""}`;
+function vBuilder(){
+  if(!results.length)return`<div class="builder">
+    <p class="wk">Build your own bowl</p>
+    <p class="wt">Fresh combinations from ${PROTEINS.length+BASES.length+MIXINS.length+DRESSINGS.length+TOPPERS.length} ingredients that land in your protein window and layer so nothing goes soggy.</p>
+    <div class="bacts"><button class="go" data-act="gen">Build bowls</button><button class="go alt" data-act="picker">Pick ingredients</button></div></div>`;
+  return`<div class="section-h"><h2>${results.length} bowls built for you</h2>
+    <span><button class="linkbtn" data-act="gen">Shuffle</button> · <button class="linkbtn" data-act="picker">Pick</button></span></div>
+  ${results.map(b=>bowlCard(b,"results")).join("")}
+  <button class="btn btn-ghost" data-act="morebowls" style="margin:6px 0 10px">Build 12 more bowls</button>`;
 }
 
 function vCook(){
@@ -915,12 +922,13 @@ function vCook(){
 }
 
 function vRecipeList(){
-  const list=cookList();
-  if(!list.length)return`<div class="empty"><div class="em">${svg("pot")}</div><h3>Nothing matches</h3>
+  const list=cookList(),c=S.cook,filtered=c.kind!=="all"||c.f.length||c.cu.length||c.q.trim();
+  const top=c.kind==="bowl"?vBuilder():filtered?"":`<button class="promo" data-act="builder"><span><b>Build your own bowl</b><br>Mix-and-match bowls that hit your numbers</span>${svg("bowl")}</button>`;
+  const noun=c.kind==="bowl"?"bowl recipe":"recipe";
+  if(!list.length)return top+`<div class="empty"><div class="em">${svg("pot")}</div><h3>Nothing matches</h3>
     <p>Loosen a filter or clear the search.</p>
     <button class="btn btn-ghost btn-sm" data-act="clearfilt" style="margin:14px auto 0">Clear all filters</button></div>`;
-  const c=S.cook,filtered=c.kind!=="all"||c.f.length||c.cu.length||c.q.trim();
-  return`<div class="section-h"><h2 class="tnum">${list.length} recipe${list.length>1?"s":""}${filtered?` <button class="linkbtn" data-act="clearfilt" style="font-family:Inter,sans-serif;font-size:13px;margin-left:4px">Clear</button>`:""}</h2>
+  return top+`<div class="section-h"><h2 class="tnum">${list.length} ${noun}${list.length>1?"s":""}${filtered?` <button class="linkbtn" data-act="clearfilt" style="font-family:Inter,sans-serif;font-size:13px;margin-left:4px">Clear</button>`:""}</h2>
     <span><button class="linkbtn" data-act="surprise">Surprise me</button>${S.cook.sort==="mix"?` · <button class="linkbtn" data-act="reshuffle">Shuffle</button>`:""}</span></div>
   ${list.slice(0,cookShown).map(recipeCard).join("")}
   ${list.length>cookShown?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Show ${Math.min(12,list.length-cookShown)} more</button>`:""}`;
@@ -939,8 +947,7 @@ function vSaved(){
    <p>Tap the heart on any recipe or bowl and it'll wait here for you.</p></div>`;
   return`<header class="top"><h1>Saved</h1><p class="muted" style="font-size:14px;margin-top:6px">${n} thing${n>1?"s":""} you liked.</p></header>
    ${weekBar()}
-   ${rs.length?`<div class="section-h"><h2>Recipes</h2></div>${rs.map(recipeCard).join("")}`:""}
-   ${S.saved.length?`<div class="section-h"><h2>Bowls</h2></div>${S.saved.map(b=>bowlCard(b,"saved")).join("")}`:""}`;
+   ${rs.map(recipeCard).join("")}${S.saved.map(b=>bowlCard(b,"saved")).join("")}`;
 }
 
 function shopRow(i){
@@ -986,15 +993,15 @@ function vSettings(){
   <div class="panel" style="margin-bottom:20px">
     <div class="field"><div><p class="fl">Servings per batch</p><p class="fh">How many lunches you prep at once — recipes scale to this</p></div>
       ${stepper("servings",s.servings,1,10)}</div>
-    <div class="field"><div><p class="fl">Protein floor</p><p class="fh">No bowl below this</p></div>${stepper("pMin",s.pMin,15,50,5,"g")}</div>
+    <div class="field"><div><p class="fl">Protein floor</p><p class="fh">Built bowls and “Fits my numbers” stay above this</p></div>${stepper("pMin",s.pMin,15,50,5,"g")}</div>
     <div class="field"><div><p class="fl">Protein ceiling</p><p class="fh">Upper end of the window</p></div>${stepper("pMax",s.pMax,20,70,5,"g")}</div>
-    <div class="field"><div><p class="fl">Calorie floor</p><p class="fh">Keeps bowls filling enough</p></div>${stepper("cMin",s.cMin,200,700,20)}</div>
+    <div class="field"><div><p class="fl">Calorie floor</p><p class="fh">Keeps lunches filling enough</p></div>${stepper("cMin",s.cMin,200,700,20)}</div>
     <div class="field"><div><p class="fl">Calorie ceiling</p><p class="fh">Upper end of the window</p></div>${stepper("cMax",s.cMax,300,900,20)}</div>
   </div>
   <div class="section-h"><h2>Never show me</h2>${S.banned.length?`<button class="linkbtn" data-act="clearban">Clear all</button>`:""}</div>
   ${S.banned.length?`<div class="chips" style="margin-bottom:20px">${S.banned.map(id=>
-    `<button class="chip plain" data-unban="${id}">${esc((BYID[id]||{name:id}).name)} ✕</button>`).join("")}</div>`
-   :`<p class="muted" style="font-size:13.5px;margin-bottom:20px">Ban an ingredient from any bowl's prep screen and it'll never turn up again.</p>`}
+    `<button class="chip plain" data-unban="${id}">${esc(banName(id))} ✕</button>`).join("")}</div>`
+   :`<p class="muted" style="font-size:13.5px;margin-bottom:20px">Ban an ingredient from any recipe or bowl and it'll stop turning up in both.</p>`}
   <div class="section-h"><h2>Library</h2></div>
   <div class="panel" style="margin-bottom:20px">
     <div class="row"><span class="rname">Cook recipes</span><span class="rqty tnum">${RECIPES.length}</span></div>
@@ -1098,6 +1105,8 @@ function recipeSheet(r){
     ${r.alt?box("Hands-off option",r.alt):""}
     ${r.top?box("When you eat it",r.top):""}
     ${box("Storage",`Keeps ${r.keeps} days in the fridge.${r.tags.includes("freezer")?" Freezes well for up to 3 months — thaw overnight in the fridge.":""}${r.note?" "+r.note:""}`)}
+    <div class="section-h"><h3>Never show me</h3></div>
+    <div class="chips">${[...new Set(main.map(x=>x[0]))].map(k=>`<button class="chip sm" data-ban="${k}">${esc(tagName(k))} ✕</button>`).join("")}</div>
     <button class="btn btn-primary" data-act="weekr" data-id="${r.id}" style="margin:18px 0 8px">${isWeek?"Remove from this week":"Make this my week"}</button>
     <button class="btn btn-ghost" data-act="saver" data-id="${r.id}" style="margin-bottom:8px">${isSaved?"Remove from saved":"Save for later"}</button>
   </div>`);
@@ -1170,18 +1179,11 @@ function listText(){
 function replaceIn(arr,id,nb){const i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=nb;}
 
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-mode],[data-adv],[data-cui],[data-act],[data-check],[data-set],[data-ban],[data-unban],[data-pick],[data-swap],[data-kind],[data-filt],[data-rcu],[data-sort],[data-freeze],[data-thaw]");
+  const t=e.target.closest("[data-tab],[data-act],[data-check],[data-set],[data-ban],[data-unban],[data-pick],[data-swap],[data-kind],[data-filt],[data-rcu],[data-sort],[data-freeze],[data-thaw]");
   if(!t)return;
   const d=t.dataset;
 
   if(d.tab){closeSheet();setTab(d.tab);return;}
-  if(d.mode){S.mode=d.mode;save();view();return;}
-  if(d.adv!==undefined&&d.adv!==""){
-    S.adv=d.adv==="1";
-    if(!S.adv)S.cuisines=S.cuisines.filter(id=>!cui(id).adv);
-    save();view(true);return;
-  }
-  if(d.cui){toggleIn(S.cuisines,d.cui);save();view(true);return;}
   if(d.kind){S.cook.kind=d.kind;cookShown=12;save();view(true);return;}
   if(d.filt){toggleIn(S.cook.f,d.filt);cookShown=12;save();view(true);return;}
   if(d.rcu){toggleIn(S.cook.cu,d.rcu);cookShown=12;save();view(true);return;}
@@ -1209,7 +1211,7 @@ document.addEventListener("click",e=>{
   if(d.ban){
     if(!S.banned.includes(d.ban))S.banned.push(d.ban);
     results=results.filter(b=>![b.base,...b.proteins,...b.mixins,b.dressing,b.topper].some(i=>i&&i.id===d.ban));
-    save();closeSheet();view(true);toast("Banned "+(BYID[d.ban]||{name:""}).name.toLowerCase());return;
+    save();closeSheet();view(true);toast("Hiding anything with "+banName(d.ban).toLowerCase());return;
   }
   if(d.unban){S.banned=S.banned.filter(x=>x!==d.unban);save();view(true);return;}
   if(d.pick){
@@ -1227,14 +1229,14 @@ document.addEventListener("click",e=>{
 
   const act=d.act;
   if(act==="close"){closeSheet();return;}
-  if(act==="gen"){
-    if(!activeCuisines().length){toast("Pick at least one cuisine");return;}
+  if(act==="gen"||act==="builder"){
+    S.cook.kind="bowl";save();
     results=[];results=generate(8);
     if(!results.length)toast("Nothing fits those targets — try widening them in Settings");
-    view();return;
+    view(true);return;
   }
-  if(act==="more"){
-    if(S.mode==="cook"){cookShown+=12;view(true);return;}
+  if(act==="more"){cookShown+=12;view(true);return;}
+  if(act==="morebowls"){
     const more=generate(12);
     if(!more.length){toast("Out of new combinations — try more cuisines");return;}
     results=results.concat(more);
@@ -1256,9 +1258,9 @@ document.addEventListener("click",e=>{
     out=out.concat(generate(4,pickSel.slice(0,2)));
     const seen=new Set();
     results=out.filter(b=>{if(seen.has(b.sig))return false;seen.add(b.sig);return true;});
-    closeSheet();
+    closeSheet();S.cook.kind="bowl";save();
     if(!results.length)toast("Nothing hit your numbers with those — try fewer picks");
-    view();return;
+    view(true);return;
   }
   if(act==="open"){const b=findBowl(d.id,d.ctx);if(b)bowlSheet(b,d.ctx);return;}
   if(act==="openr"){const r=RBYID[d.id];if(r)recipeSheet(r);return;}
@@ -1290,7 +1292,7 @@ document.addEventListener("click",e=>{
   if(act==="clearban"){S.banned=[];save();view(true);return;}
   if(act==="reset"){
     if(confirm("Reset saved recipes, bowls, settings, freezer and history?")){
-      localStorage.removeItem(LS);S=fresh();S.mode=season();
+      localStorage.removeItem(LS);S=fresh();
       results=[];save();view();toast("Reset");
     }
     return;
