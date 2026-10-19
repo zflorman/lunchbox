@@ -281,6 +281,10 @@ details.cuis[open] summary::after{content:" ▴"}
 <script src="recipes/handhelds.js"></script>
 <script src="recipes/salads-more.js"></script>
 <script src="recipes/bowls-world.js"></script>
+<script src="recipes/stirfry-sheetpan-more.js"></script>
+<script src="recipes/boxes-eggs-global.js"></script>
+<script src="recipes/set-and-forget.js"></script>
+<script src="recipes/more-mix.js"></script>
 <script>
 const CUISINES=[
  {id:"mex",name:"Mexican",color:"var(--c-mexican)",glyph:"M",adv:false},
@@ -821,12 +825,19 @@ const LOVE_NOTE="Made with love, just for you.";
 
 function view(keepScroll){
   const a=document.getElementById("app");
+  // Chip rows scroll sideways; keep their position across re-renders so the chip you tapped stays put.
+  const rows=[...a.querySelectorAll(".scroller")].map(x=>x.scrollLeft);
   if(S.tab==="discover")a.innerHTML=vDiscover();
   if(S.tab==="saved")a.innerHTML=vSaved();
   if(S.tab==="shop")a.innerHTML=vShop();
   if(S.tab==="settings")a.innerHTML=vSettings();
   a.insertAdjacentHTML("beforeend",`<p class="lovenote">${esc(LOVE_NOTE)}</p>`);
   document.getElementById("tabs").innerHTML=vTabs();
+  a.querySelectorAll(".scroller").forEach((x,i)=>{
+    if(keepScroll&&rows[i]!==undefined){x.scrollLeft=rows[i];return;}
+    const on=x.querySelector('[aria-pressed="true"]');
+    if(on&&on.offsetLeft+on.offsetWidth>x.clientWidth)x.scrollLeft=on.offsetLeft-16;
+  });
   if(!keepScroll)window.scrollTo(0,0);
 }
 
@@ -841,7 +852,7 @@ function vDiscover(){
   return`<header class="top">
     <div class="top-row"><div>
       <p class="eyebrow">${new Date().toLocaleDateString(undefined,{month:"long",day:"numeric"})} · ${season()==="cook"?"cold months":"warm months"}</p>
-      <h1>${isCook?"Something warm<br>for the week.":"Lunch, sorted<br>by Monday."}</h1>
+      <h1>${!isCook?"Lunch, sorted<br>by Monday.":season()==="cook"?"Something warm<br>for the week.":"Cook once,<br>eat all week."}</h1>
     </div></div>
   </header>
   <div class="seg" role="group" aria-label="Cooking mode" style="margin-bottom:16px">
@@ -890,7 +901,8 @@ function vRecipeList(){
   if(!list.length)return`<div class="empty"><div class="em">${svg("pot")}</div><h3>Nothing matches</h3>
     <p>Loosen a filter or clear the search.</p>
     <button class="btn btn-ghost btn-sm" data-act="clearfilt" style="margin:14px auto 0">Clear all filters</button></div>`;
-  return`<div class="section-h"><h2 class="tnum">${list.length} recipe${list.length>1?"s":""}</h2>
+  const c=S.cook,filtered=c.kind!=="all"||c.f.length||c.cu.length||c.q.trim();
+  return`<div class="section-h"><h2 class="tnum">${list.length} recipe${list.length>1?"s":""}${filtered?` <button class="linkbtn" data-act="clearfilt" style="font-family:Inter,sans-serif;font-size:13px;margin-left:4px">Clear</button>`:""}</h2>
     <span><button class="linkbtn" data-act="surprise">Surprise me</button>${S.cook.sort==="mix"?` · <button class="linkbtn" data-act="reshuffle">Shuffle</button>`:""}</span></div>
   ${list.slice(0,cookShown).map(recipeCard).join("")}
   ${list.length>cookShown?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Show ${Math.min(12,list.length-cookShown)} more</button>`:""}`;
