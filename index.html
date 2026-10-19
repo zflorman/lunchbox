@@ -239,6 +239,24 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surf
 .search:focus{outline:none;border-color:var(--ink-2)}
 .scroller{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
 .scroller::-webkit-scrollbar{display:none}
+.scroller.dragging{cursor:grabbing;user-select:none}
+.scroller.dragging .chip{pointer-events:none}
+@media (hover:hover) and (pointer:fine){
+  .scroller{scrollbar-width:thin;cursor:grab}
+  .scroller::-webkit-scrollbar{display:block;height:6px}
+  .scroller::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:3px}
+}
+/* Wide screens: more room, chips wrap instead of scrolling, cards in a grid, sheets as a centered panel. */
+@media (min-width:900px){
+  .wrap.wide{max-width:1080px;padding:0 28px}
+  .wide .scroller{flex-wrap:wrap;overflow:visible;margin:0;padding:2px 0}
+  .wide .search,.wide .seg.sm{max-width:560px}
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;align-items:start}
+  .cards .card{margin-bottom:0}
+  .sheet{max-width:680px;margin:0 auto;border-radius:24px 24px 0 0}
+  .chip:hover,.linkbtn:hover,.iconbtn:hover{border-color:var(--line-strong)}
+  .btn-ghost:hover{border-color:var(--line-strong)}
+}
 .scroller .chip{flex:none;white-space:nowrap}
 .chip.sm{padding:6px 13px;font-size:13px}
 details.cuis{margin-top:12px}
@@ -862,6 +880,7 @@ const LOVE_NOTE="Made with love, just for you.";
 
 function view(keepScroll){
   const a=document.getElementById("app");
+  a.className="wrap"+(S.tab==="discover"||S.tab==="saved"?" wide":"");
   // Chip rows scroll sideways; keep their position across re-renders so the chip you tapped stays put.
   const rows=[...a.querySelectorAll(".scroller")].map(x=>x.scrollLeft);
   if(S.tab==="discover")a.innerHTML=vDiscover();
@@ -902,7 +921,7 @@ function vBuilder(){
     <div class="bacts"><button class="go" data-act="gen">Build bowls</button><button class="go alt" data-act="picker">Pick ingredients</button></div></div>`;
   return`<div class="section-h"><h2>${results.length} bowls built for you</h2>
     <span><button class="linkbtn" data-act="gen">Shuffle</button> · <button class="linkbtn" data-act="picker">Pick</button></span></div>
-  ${results.map(b=>bowlCard(b,"results")).join("")}
+  <div class="cards">${results.map(b=>bowlCard(b,"results")).join("")}</div>
   <button class="btn btn-ghost" data-act="morebowls" style="margin:6px 0 10px">Build 12 more bowls</button>`;
 }
 
@@ -930,7 +949,7 @@ function vRecipeList(){
     <button class="btn btn-ghost btn-sm" data-act="clearfilt" style="margin:14px auto 0">Clear all filters</button></div>`;
   return top+`<div class="section-h"><h2 class="tnum">${list.length} ${noun}${list.length>1?"s":""}${filtered?` <button class="linkbtn" data-act="clearfilt" style="font-family:Inter,sans-serif;font-size:13px;margin-left:4px">Clear</button>`:""}</h2>
     <span><button class="linkbtn" data-act="surprise">Surprise me</button>${S.cook.sort==="mix"?` · <button class="linkbtn" data-act="reshuffle">Shuffle</button>`:""}</span></div>
-  ${list.slice(0,cookShown).map(recipeCard).join("")}
+  <div class="cards">${list.slice(0,cookShown).map(recipeCard).join("")}</div>
   ${list.length>cookShown?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Show ${Math.min(12,list.length-cookShown)} more</button>`:""}`;
 }
 
@@ -947,7 +966,7 @@ function vSaved(){
    <p>Tap the heart on any recipe or bowl and it'll wait here for you.</p></div>`;
   return`<header class="top"><h1>Saved</h1><p class="muted" style="font-size:14px;margin-top:6px">${n} thing${n>1?"s":""} you liked.</p></header>
    ${weekBar()}
-   ${rs.map(recipeCard).join("")}${S.saved.map(b=>bowlCard(b,"saved")).join("")}`;
+   <div class="cards">${rs.map(recipeCard).join("")}${S.saved.map(b=>bowlCard(b,"saved")).join("")}</div>`;
 }
 
 function shopRow(i){
@@ -1308,6 +1327,31 @@ document.addEventListener("toggle",e=>{
   if(e.target.classList&&e.target.classList.contains("cuis")){S.cook.cuOpen=e.target.open;save();}
 },true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.classList.contains("open"))closeSheet();});
+
+// Chip rows scroll sideways by touch; give mouse users the wheel and click-and-drag too.
+document.addEventListener("wheel",e=>{
+  const x=e.target.closest(".scroller");
+  if(!x||x.scrollWidth<=x.clientWidth||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
+  const before=x.scrollLeft;x.scrollLeft+=e.deltaY;
+  if(x.scrollLeft!==before)e.preventDefault();
+},{passive:false});
+let drag=null;
+document.addEventListener("pointerdown",e=>{
+  const x=e.pointerType==="mouse"&&e.button===0&&e.target.closest(".scroller");
+  if(x&&x.scrollWidth>x.clientWidth)drag={x,startX:e.clientX,left:x.scrollLeft,moved:false};
+});
+document.addEventListener("pointermove",e=>{
+  if(!drag)return;
+  const dx=e.clientX-drag.startX;
+  if(!drag.moved&&Math.abs(dx)>5){drag.moved=true;drag.x.classList.add("dragging");}
+  if(drag.moved)drag.x.scrollLeft=drag.left-dx;
+});
+document.addEventListener("pointerup",()=>{
+  if(!drag)return;
+  const d=drag;drag=null;
+  // Let the click that ends a drag fire first, then re-enable the chips.
+  if(d.moved)setTimeout(()=>d.x.classList.remove("dragging"),0);
+});
 
 view();
 </script>
