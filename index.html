@@ -7,7 +7,7 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Prep">
-<title>Prep — lunch bowls for the week</title>
+<title>Prep — lunches for the week</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wdth,wght@12..96,75..100,400;12..96,75..100,600;12..96,75..100,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
@@ -35,6 +35,10 @@
   --c-indian:#8A6210;
   --c-japanese:#3F5CA8;
   --c-californian:#4E7A2A;
+  --c-italian:#A8323E;
+  --c-comfort:#7A5230;
+  --c-cajun:#2E6F8E;
+  --c-easteuro:#7D3C55;
   --r-card:18px;
   --r-pill:999px;
   --shadow:0 1px 2px rgba(22,33,29,.06), 0 6px 18px rgba(22,33,29,.06);
@@ -64,6 +68,10 @@
     --c-indian:#BE9032;
     --c-japanese:#6D89D2;
     --c-californian:#7BA84F;
+    --c-italian:#DA6370;
+    --c-comfort:#B98A5E;
+    --c-cajun:#5DA3C4;
+    --c-easteuro:#C2708F;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
   }
 }
@@ -213,6 +221,35 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surf
 .mini .ml{font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3)}
 .mini .mv{font-size:22px;font-weight:800;font-family:'Bricolage Grotesque',sans-serif;letter-spacing:-.02em;margin-top:2px}
 
+.glyph.two{font-size:14px;letter-spacing:-.03em}
+.seg.sm button{font-size:12.5px;padding:8px 4px}
+.search{width:100%;padding:13px 18px;border-radius:var(--r-pill);border:1.5px solid var(--line);background:var(--surface);
+  color:var(--ink);font:inherit;font-size:15px;-webkit-appearance:none;appearance:none}
+.search::placeholder{color:var(--ink-3)}
+.search:focus{outline:none;border-color:var(--ink-2)}
+.scroller{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.scroller::-webkit-scrollbar{display:none}
+.scroller .chip{flex:none;white-space:nowrap}
+.chip.sm{padding:6px 13px;font-size:13px}
+details.cuis{margin-top:12px}
+details.cuis summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2);list-style:none;padding:4px 2px}
+details.cuis summary::-webkit-details-marker{display:none}
+details.cuis summary::after{content:" ▾";color:var(--ink-3)}
+details.cuis[open] summary::after{content:" ▴"}
+.badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
+.bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:var(--surface-sunk);color:var(--ink-2)}
+.bdg.season{background:var(--lime);color:#1B2606}
+.sheet .badges{margin-bottom:12px}
+.tjmark{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;color:var(--c-italian);border:1px solid currentColor;
+  border-radius:4px;padding:0 4px;margin-left:7px;vertical-align:2px;line-height:1.5}
+.rmain{display:block;min-width:0}
+.rsub{display:block;font-size:12px;color:var(--ink-3);margin-top:1px;line-height:1.4}
+.row .rqty{text-align:right;max-width:46%}
+.aisle{font-size:11px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);padding:14px 0 2px}
+.aisle + .row{padding-top:9px}
+.callout{background:var(--surface);border-radius:14px;padding:13px 15px;box-shadow:var(--shadow);font-size:14px;margin-top:12px;line-height:1.55}
+.callout .eyebrow{margin-bottom:3px}
+.pillbtn{margin-left:auto;font-size:12px;font-weight:600;color:var(--ink-2);border:1px solid var(--line);border-radius:var(--r-pill);padding:6px 12px;flex:none}
 .lovenote{text-align:center;font-size:12px;color:var(--ink-3);padding:26px 24px 14px;letter-spacing:.01em}
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 :focus-visible{outline:2.5px solid var(--lime-deep);outline-offset:2px;border-radius:6px}
@@ -224,6 +261,11 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surf
 <div class="sheet-scrim" id="scrim"></div>
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Details"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
+<script src="recipes/catalog.js"></script>
+<script src="recipes/soups.js"></script>
+<script src="recipes/chili-stew-curry.js"></script>
+<script src="recipes/sheetpan-skillet-bake.js"></script>
+<script src="recipes/bowls-salads-hacks.js"></script>
 <script>
 const CUISINES=[
  {id:"mex",name:"Mexican",color:"var(--c-mexican)",glyph:"M",adv:false},
@@ -237,7 +279,11 @@ const CUISINES=[
  {id:"per",name:"Peruvian",color:"var(--c-peruvian)",glyph:"P",adv:true},
  {id:"ind",name:"Indian-inspired",color:"var(--c-indian)",glyph:"I",adv:true},
  {id:"jpn",name:"Japanese",color:"var(--c-japanese)",glyph:"J",adv:true},
- {id:"cal",name:"Californian",color:"var(--c-californian)",glyph:"C",adv:true}
+ {id:"cal",name:"Californian",color:"var(--c-californian)",glyph:"C",adv:true},
+ {id:"ita",name:"Italian",color:"var(--c-italian)",glyph:"It",cookOnly:true},
+ {id:"ame",name:"Comfort classics",color:"var(--c-comfort)",glyph:"Co",cookOnly:true},
+ {id:"caj",name:"Cajun & Creole",color:"var(--c-cajun)",glyph:"Cj",cookOnly:true},
+ {id:"eeu",name:"Eastern European",color:"var(--c-easteuro)",glyph:"Eu",cookOnly:true}
 ];
 const ALLC=CUISINES.map(c=>c.id);
 
@@ -369,69 +415,33 @@ const TOPPERS=[
  I("none2","No topper","",0,0,0,0,0,"","all",{skip:1})
 ];
 
-const COOK_RECIPES=[
- {id:"c1",name:"Chicken sausage and white bean soup",cuisine:"med",kind:"Soup",cal:430,p:34,c:38,f:15,time:"25 min",
-  ing:[["Chicken sausage",3,"link"],["Cannellini beans",2,"can"],["Chopped kale",4,"cup"],["Mirepoix",1,"cup"],["Chicken broth",6,"cup"],["Garlic",4,"clove"],["Parmesan rind",1,"ea"]],
-  steps:["Brown sliced chicken sausage in a pot, 5 minutes.","Add mirepoix and garlic, cook until soft, 5 minutes.","Add broth, drained beans, and the parmesan rind. Simmer 12 minutes.","Stir in kale until wilted. Season and cool before portioning."]},
- {id:"c2",name:"Sheet pan sausage, sweet potato and broccolini",cuisine:"cal",kind:"Sheet pan",cal:475,p:32,c:44,f:19,time:"35 min",
-  ing:[["Chicken sausage",4,"link"],["Sweet potato, cubed",3,"cup"],["Broccolini",2,"bunch"],["Olive oil",3,"tbsp"],["Smoked paprika",2,"tsp"],["Lemon",1,"ea"]],
-  steps:["Heat oven to 425°F. Toss sweet potato with oil and paprika, roast 15 minutes.","Add sliced sausage and broccolini to the pan. Roast 15 more minutes.","Squeeze lemon over the whole pan. Cool, then portion into containers."]},
- {id:"c3",name:"Pesto gnocchi with chickpeas and blistered tomatoes",cuisine:"med",kind:"Gnocchi",cal:510,p:31,c:58,f:18,time:"20 min",
-  ing:[["Cauliflower gnocchi",2,"pkg"],["Chickpeas",2,"can"],["Cherry tomatoes",2,"cup"],["Pesto",0.5,"cup"],["Rotisserie chicken, shredded",2,"cup"],["Parmesan",0.5,"cup"]],
-  steps:["Roast gnocchi and tomatoes at 425°F for 20 minutes, tossing once.","Warm drained chickpeas and shredded chicken in a bowl.","Toss everything with pesto while warm. Finish with parmesan."]},
- {id:"c4",name:"Chicken tortilla soup",cuisine:"mex",kind:"Soup",cal:420,p:36,c:36,f:14,time:"25 min",
-  ing:[["Rotisserie chicken, shredded",3,"cup"],["Black beans",2,"can"],["Fire-roasted tomatoes",1,"can"],["Chicken broth",6,"cup"],["Corn",1.5,"cup"],["Taco seasoning",2,"tbsp"],["Tortilla strips",1,"cup"]],
-  steps:["Simmer broth, tomatoes, corn, drained beans, and taco seasoning for 12 minutes.","Add shredded chicken and heat through, 3 minutes.","Cool and portion. Keep tortilla strips and avocado separate — add the day you eat it."]},
- {id:"c5",name:"Turkey meatball and orzo soup",cuisine:"med",kind:"Soup",cal:445,p:33,c:44,f:14,time:"25 min",
-  ing:[["Turkey meatballs",20,"ea"],["Orzo",1,"cup"],["Baby spinach",4,"cup"],["Chicken broth",7,"cup"],["Carrot, diced",1,"cup"],["Lemon",1,"ea"],["Dill",0.25,"cup"]],
-  steps:["Simmer broth with carrot for 6 minutes.","Add meatballs and orzo, simmer 9 minutes.","Stir in spinach, lemon juice, and dill. Cool before portioning."],
-  note:"Orzo keeps absorbing broth in the fridge. Add a splash of water when reheating."},
- {id:"c6",name:"Sheet pan harissa chicken and cauliflower",cuisine:"naf",kind:"Sheet pan",cal:465,p:38,c:32,f:21,time:"35 min",
-  ing:[["Chicken thighs",1.5,"lb"],["Cauliflower florets",4,"cup"],["Chickpeas",1,"can"],["Harissa paste",3,"tbsp"],["Olive oil",3,"tbsp"],["Greek yogurt",1,"cup"],["Cilantro",0.5,"cup"]],
-  steps:["Heat oven to 425°F. Toss chicken, cauliflower, and drained chickpeas with harissa and oil.","Roast 30 minutes, until chicken hits 165°F and cauliflower is charred at the edges.","Portion with a scoop of yogurt on the side and cilantro over the top."]},
- {id:"c7",name:"Lentil and chicken sausage stew",cuisine:"med",kind:"Stew",cal:455,p:33,c:48,f:13,time:"30 min",
-  ing:[["Steamed lentils",3,"pkg"],["Chicken sausage",3,"link"],["Crushed tomatoes",1,"can"],["Mirepoix",1.5,"cup"],["Chicken broth",3,"cup"],["Smoked paprika",2,"tsp"],["Kale",3,"cup"]],
-  steps:["Brown sliced sausage, then add mirepoix and cook until soft.","Add tomatoes, broth, paprika, and lentils. Simmer 15 minutes.","Fold in kale. Season well — lentils take more salt than you think."]},
- {id:"c8",name:"Miso ginger chicken rice bowl",cuisine:"jpn",kind:"Warm bowl",cal:490,p:35,c:52,f:14,time:"25 min",
-  ing:[["Grilled chicken strips",1.5,"lb"],["Brown rice",2,"cup"],["Broccoli florets",4,"cup"],["Miso paste",3,"tbsp"],["Fresh ginger",2,"tbsp"],["Sesame oil",2,"tbsp"],["Edamame",1.5,"cup"]],
-  steps:["Cook rice. Steam broccoli and edamame until just tender.","Whisk miso, ginger, sesame oil, and a splash of water into a sauce.","Layer rice, chicken, and vegetables in containers. Keep sauce separate until serving."]},
- {id:"c9",name:"White chicken chili",cuisine:"mex",kind:"Chili",cal:450,p:38,c:40,f:14,time:"30 min",
-  ing:[["Rotisserie chicken, shredded",3,"cup"],["Cannellini beans",2,"can"],["Green chiles",2,"can"],["Chicken broth",5,"cup"],["Cumin",1,"tbsp"],["Greek yogurt",0.75,"cup"],["Lime",2,"ea"]],
-  steps:["Simmer broth, drained beans, chiles, and cumin for 15 minutes. Mash some beans to thicken.","Add chicken and warm through.","Off heat, stir in yogurt and lime juice. Cool before portioning."]},
- {id:"c10",name:"Gnocchi bake with turkey meatballs",cuisine:"med",kind:"Gnocchi",cal:525,p:34,c:56,f:19,time:"35 min",
-  ing:[["Potato gnocchi",2,"pkg"],["Turkey meatballs",20,"ea"],["Marinara",3,"cup"],["Mozzarella",1.5,"cup"],["Baby spinach",4,"cup"],["Italian seasoning",1,"tbsp"]],
-  steps:["Heat oven to 425°F. Toss gnocchi, meatballs, marinara, and spinach in a baking dish.","Top with mozzarella and bake 25 minutes, until bubbling.","Let it set 10 minutes before portioning so it holds its shape."]},
- {id:"c11",name:"Sheet pan Greek chicken and potatoes",cuisine:"grk",kind:"Sheet pan",cal:495,p:36,c:42,f:20,time:"40 min",
-  ing:[["Chicken thighs",1.5,"lb"],["Baby potatoes, halved",4,"cup"],["Red onion",1,"ea"],["Feta",1,"cup"],["Lemon",2,"ea"],["Oregano",1,"tbsp"],["Olive oil",3,"tbsp"]],
-  steps:["Heat oven to 425°F. Toss potatoes with oil, oregano, and lemon zest. Roast 20 minutes.","Add chicken and onion, roast 20 more minutes.","Crumble feta over the hot pan and squeeze lemon across everything."]},
- {id:"c12",name:"Coconut curry lentil soup",cuisine:"ind",kind:"Soup",cal:440,p:31,c:46,f:16,time:"25 min",
-  ing:[["Red lentils",1.5,"cup"],["Coconut milk",1,"can"],["Grilled chicken strips",1,"lb"],["Curry powder",2,"tbsp"],["Chicken broth",5,"cup"],["Baby spinach",4,"cup"],["Lime",2,"ea"]],
-  steps:["Simmer lentils, broth, and curry powder for 18 minutes, until lentils break down.","Stir in coconut milk and chicken, heat through.","Add spinach and lime juice off the heat."]},
- {id:"c13",name:"Chicken shawarma sheet pan",cuisine:"mde",kind:"Sheet pan",cal:480,p:37,c:38,f:20,time:"35 min",
-  ing:[["Chicken thighs",1.5,"lb"],["Chickpeas",2,"can"],["Red onion",1,"ea"],["Shawarma seasoning",2,"tbsp"],["Olive oil",3,"tbsp"],["Tahini sauce",0.75,"cup"],["Parsley",0.5,"cup"]],
-  steps:["Heat oven to 425°F. Toss chicken, drained chickpeas, and onion with seasoning and oil.","Roast 30 minutes, until the chickpeas crisp at the edges.","Portion and keep tahini sauce separate until serving."]},
- {id:"c14",name:"Sesame chicken and broccoli bowls",cuisine:"asn",kind:"Warm bowl",cal:470,p:36,c:48,f:14,time:"25 min",
-  ing:[["Grilled chicken strips",1.5,"lb"],["Broccoli florets",5,"cup"],["Brown rice",2,"cup"],["Soyaki sauce",0.5,"cup"],["Sesame oil",1,"tbsp"],["Scallions",4,"ea"],["Sesame seeds",2,"tbsp"]],
-  steps:["Cook rice. Roast broccoli at 425°F for 18 minutes.","Warm chicken with soyaki and sesame oil in a skillet, 4 minutes.","Layer rice, chicken, and broccoli. Add sesame and scallions the day you eat it."]},
- {id:"c15",name:"Tuscan gnocchi soup",cuisine:"med",kind:"Soup",cal:485,p:32,c:52,f:17,time:"25 min",
-  ing:[["Cauliflower gnocchi",2,"pkg"],["Chicken sausage",3,"link"],["Chicken broth",6,"cup"],["Sun-dried tomatoes",0.5,"cup"],["Kale",4,"cup"],["Half and half",0.5,"cup"],["Garlic",4,"clove"]],
-  steps:["Brown sliced sausage with garlic, 6 minutes.","Add broth and sun-dried tomatoes, simmer 8 minutes. Add gnocchi, cook 3 minutes.","Stir in kale and half and half. Cool before portioning."],
-  note:"Gnocchi softens over the week. Best eaten Monday through Wednesday."}
-];
 const LS="prepapp.v1";
 const DEF={tab:"discover",mode:null,adv:false,cuisines:["mex","med","grk","asn"],
-  saved:[],week:null,checked:{},banned:[],history:[],
+  saved:[],savedR:[],week:null,checked:{},banned:[],history:[],freezer:[],
+  cook:{kind:"all",f:[],cu:[],q:"",sort:"mix",cuOpen:false},
   s:{pMin:30,pMax:42,cMin:380,cMax:560,servings:5}};
+const fresh=()=>JSON.parse(JSON.stringify(DEF));
+const RBYID={};RECIPES.forEach(r=>RBYID[r.id]=r);
+const isRecipe=x=>!!(x&&x.kind&&x.ing);
 let S=load();
-let results=[],cookResults=[],pickSel=[];
+let results=[],pickSel=[],cookShown=12,cookOrder=shuffle(RECIPES.map(r=>r.id)),sheetCtx=null;
 
 function load(){
-  try{const r=JSON.parse(localStorage.getItem(LS));if(r)return Object.assign({},DEF,r,{s:Object.assign({},DEF.s,r.s||{})});}catch(e){}
-  return JSON.parse(JSON.stringify(DEF));
+  const s=fresh();
+  try{
+    const r=JSON.parse(localStorage.getItem(LS));
+    if(r)Object.assign(s,r,{s:Object.assign(s.s,r.s||{}),cook:Object.assign(s.cook,r.cook||{})});
+  }catch(e){}
+  // Recipes live in the library, so re-point the week at the current copy (old saves held the whole object).
+  if(isRecipe(s.week))s.week=RBYID[s.week.id]||null;
+  s.savedR=(s.savedR||[]).filter(id=>RBYID[id]);
+  s.freezer=s.freezer||[];
+  return s;
 }
 function save(){try{localStorage.setItem(LS,JSON.stringify(S));}catch(e){}}
-function season(){const m=new Date().getMonth();return(m>=10||m<=2)?"cook":"assemble";}
+function season(){const m=new Date().getMonth();return(m>=9||m<=3)?"cook":"assemble";}
 if(!S.mode)S.mode=season();
+function shuffle(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
 
 const POOLS={base:BASES,hero:PROTEINS,booster:PROTEINS,mixin:MIXINS,dressing:DRESSINGS,topper:TOPPERS};
 const BYID={};[PROTEINS,BASES,MIXINS,DRESSINGS,TOPPERS].forEach(a=>a.forEach(i=>BYID[i.id]=i));
@@ -523,7 +533,8 @@ function generate(n,must){
   }
   return out;
 }
-function activeCuisines(){return S.cuisines.filter(id=>S.adv||!cui(id).adv);}
+// Bowls only draw from cuisines the bowl ingredients cover; cook-only cuisines live in the recipe library.
+function activeCuisines(){return S.cuisines.filter(id=>!cui(id).cookOnly&&(S.adv||!cui(id).adv));}
 
 function swap(b,slot,idx){
   const c=b.cuisine;
@@ -567,6 +578,60 @@ function qty(i,mult){
   return(frac(n)+(u?" "+u:"")+(n>1&&["cup","link","can","pkg","clove","bunch"].includes(u)?"s":"")).trim();
 }
 
+// ---- Recipe library helpers ----
+const tjName=k=>TJ[k].n.replace(/\s*\(.*?\)/g,"");
+const tagName=k=>{const n=tjName(k).replace(/^Organic /,"");return n.charAt(0).toUpperCase()+n.slice(1);};
+const PLURAL={cup:1,link:1,can:1,pkg:1,clove:1,bunch:1,head:1,stalk:1,slice:1,block:1,packet:1,cube:1,tub:1,bag:1,jar:1,carton:1,container:1,loaf:1,pint:1,log:1,tray:1,bottle:1,pack:1};
+const WHOLE=["ea","head","bunch","pkg","can","pouch","link","slice","stalk","block","packet","cube"];
+function unitStr(u,n){
+  if(u==="ea")return"";
+  if(u==="box"||u==="pouch")return n>1?u+"es":u;
+  return u+(n>1&&PLURAL[u]?"s":"");
+}
+function fmt(n,u){const us=unitStr(u,n);return(frac(n)+(us?" "+us:"")).trim();}
+const rqty=(r,x)=>x[1]*S.s.servings/r.serves;
+// What to actually grab off the shelf: whole packages, with the measured amount alongside.
+function shopQty(k,n){
+  const p=TJ[k];
+  if(p.st)return fmt(n,p.u);
+  if(p.pk){const c=Math.max(1,Math.ceil(n/p.pk-.25));return`${c} ${unitStr(p.pkn,c)} · ${fmt(n,p.u)}`;}
+  if(WHOLE.includes(p.u)){const c=Math.max(1,Math.ceil(n-.34));return fmt(c,p.u);}
+  return fmt(n,p.u);
+}
+const isSeasonal=r=>r.ing.some(x=>TJ[x[0]].s);
+const hasTag=t=>r=>r.tags.includes(t);
+const FILTERS=[
+ ["fits","Fits my numbers",r=>passes(r)],
+ ["quick","30 min or less",r=>r.min<=30],
+ ["veg","Meatless",hasTag("veg")],
+ ["freezer","Freezer-friendly",hasTag("freezer")],
+ ["seasonal","Seasonal at TJ's",isSeasonal],
+ ["hands","Instant Pot / slow cooker",r=>r.tags.includes("ip")||r.tags.includes("slow")],
+ ["onepot","One pot or pan",hasTag("onepot")],
+ ["cozy","Extra cozy",hasTag("cozy")],
+ ["sick","Sick-day",hasTag("sick")],
+ ["spicy","Spicy",hasTag("spicy")],
+ ["light","Lighter",hasTag("light")],
+ ["new","Haven't made",r=>!S.history.includes(r.id)]
+];
+const KGROUPS=[["all","All",null],["soup","Soups",["soup"]],["chili","Chili & stew",["chili","stew"]],["curry","Curries",["curry"]],
+ ["sheetpan","Sheet pans",["sheetpan"]],["skillet","Skillets",["skillet"]],["bake","Bakes & stuffed",["bake","stuffed"]],
+ ["bowl","Bowls & salads",["bowl","salad"]],["grab","Egg bakes & wraps",["eggs","wrap"]],["hack","TJ's hacks",["hack"]]];
+const SORTS=[["mix","Mix it up"],["protein","Most protein"],["quick","Quickest"],["light","Lightest"]];
+RECIPES.forEach(r=>{r._s=[r.name,cui(r.cu).name,KINDS[r.kind],...r.ing.map(x=>TJ[x[0]].n)].join(" ").toLowerCase();});
+
+function cookList(){
+  const c=S.cook,q=c.q.trim().toLowerCase(),g=(KGROUPS.find(k=>k[0]===c.kind)||KGROUPS[0])[2];
+  const fs=FILTERS.filter(f=>c.f.includes(f[0]));
+  const list=RECIPES.filter(r=>(!g||g.includes(r.kind))&&(!c.cu.length||c.cu.includes(r.cu))
+    &&fs.every(f=>f[2](r))&&(!q||q.split(/\s+/).every(w=>r._s.includes(w))));
+  if(c.sort==="protein")return list.sort((a,b)=>b.p-a.p);
+  if(c.sort==="quick")return list.sort((a,b)=>a.min-b.min);
+  if(c.sort==="light")return list.sort((a,b)=>a.cal-b.cal);
+  const o={};cookOrder.forEach((id,i)=>o[id]=i);
+  return list.sort((a,b)=>(S.history.includes(a.id)-S.history.includes(b.id))||o[a.id]-o[b.id]);
+}
+
 const ICON={
   spark:'<path d="M12 3l2.2 5.6L20 11l-5.8 2.4L12 19l-2.2-5.6L4 11l5.8-2.4z"/>',
   heart:'<path d="M12 20s-7-4.6-7-9.3A4.1 4.1 0 0 1 12 8a4.1 4.1 0 0 1 7 2.7C19 15.4 12 20 12 20z"/>',
@@ -578,7 +643,8 @@ const ICON={
   ban:'<circle cx="12" cy="12" r="8"/><path d="M6.5 6.5l11 11"/>',
   bowl:'<path d="M3 11h18a9 9 0 0 1-18 0z"/><path d="M7 8c0-1.6 2.2-3 5-3s5 1.4 5 3"/>',
   pot:'<path d="M4 9h16v7a4 4 0 0 1-4 4H8a4 4 0 0 1-4-4z"/><path d="M2 9h2m16 0h2M9 5c0-1 .6-2 1.5-2M14 5c0-1-.6-2-1.5-2"/>',
-  plus:'<path d="M12 5v14M5 12h14"/>'
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  snow:'<path d="M12 3v18M4.2 7.5l15.6 9M4.2 16.5l15.6-9M9.5 4.5L12 6l2.5-1.5M9.5 19.5L12 18l2.5 1.5"/>'
 };
 const svg=(k,w)=>`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="${w||1.8}" stroke-linecap="round" stroke-linejoin="round">${ICON[k]}</svg>`;
 
@@ -597,24 +663,23 @@ function ring(p){
    stroke-dasharray="${(pct*C).toFixed(1)} ${C}" transform="rotate(-90 27 27)"/></svg>
   <span class="val tnum">${Math.round(p)}g</span></div>`;
 }
+const glyph=c=>`<div class="glyph${c.glyph.length>1?" two":""}">${c.glyph}</div>`;
+const mstats=m=>`<div class="mstats">
+  <div class="mstat"><p class="l">Protein</p><p class="v tnum">${m.p}g</p></div>
+  <div class="mstat"><p class="l">Calories</p><p class="v tnum">${m.cal}</p></div>
+  <div class="mstat"><p class="l">C / F</p><p class="v tnum">${m.c} / ${m.f}</p></div></div>`;
 
 function bowlCard(b,ctx){
   const c=cui(b.cuisine),isSaved=S.saved.some(x=>x.id===b.id),isWeek=S.week&&S.week.id===b.id;
   const items=[b.base,...b.proteins,...b.mixins,b.dressing,b.topper].filter(x=>x&&!x.skip&&x.id!=="none");
   return`<article class="card">
    <div class="card-band" style="background:${c.color}">
-     <div class="glyph">${c.glyph}</div>
+     ${glyph(c)}
      <div><p class="k">${esc(c.name)}</p><p class="t">${esc(b.name)}</p></div>
    </div>
    <div class="card-body">
      <div class="taglist">${items.map(i=>`<span class="tag${i.dayof?" dayof":""}">${esc(i.short||i.name)}${i.dayof?" · day-of":""}</span>`).join("")}</div>
-     <div class="macros">${ring(b.m.p)}
-       <div class="mstats">
-         <div class="mstat"><p class="l">Protein</p><p class="v tnum">${b.m.p}g</p></div>
-         <div class="mstat"><p class="l">Calories</p><p class="v tnum">${b.m.cal}</p></div>
-         <div class="mstat"><p class="l">C / F</p><p class="v tnum">${b.m.c} / ${b.m.f}</p></div>
-       </div>
-     </div>
+     <div class="macros">${ring(b.m.p)}${mstats(b.m)}</div>
      <div class="cardacts">
        <button class="btn btn-ghost" data-act="open" data-id="${b.id}" data-ctx="${ctx}">See prep</button>
        <button class="iconbtn" data-act="save" data-id="${b.id}" data-ctx="${ctx}" aria-pressed="${isSaved}" aria-label="${isSaved?"Remove from saved":"Save bowl"}">${svg("heart")}</button>
@@ -623,24 +688,31 @@ function bowlCard(b,ctx){
    </div></article>`;
 }
 
+function badges(r){
+  const b=[];
+  if(isSeasonal(r))b.push(`<span class="bdg season">TJ's seasonal</span>`);
+  if(r.tags.includes("freezer"))b.push(`<span class="bdg">Freezes</span>`);
+  if(r.tags.includes("veg"))b.push(`<span class="bdg">Meatless</span>`);
+  if(r.tags.includes("ip"))b.push(`<span class="bdg">Instant Pot</span>`);
+  if(r.tags.includes("slow"))b.push(`<span class="bdg">Slow cooker</span>`);
+  if(S.history.includes(r.id))b.push(`<span class="bdg">Made before</span>`);
+  return b.length?`<div class="badges">${b.join("")}</div>`:"";
+}
+
 function recipeCard(r){
-  const c=cui(r.cuisine),isWeek=S.week&&S.week.id===r.id;
+  const c=cui(r.cu),isWeek=S.week&&S.week.id===r.id,isSaved=S.savedR.includes(r.id);
+  const hero=r.ing.filter(x=>!TJ[x[0]].st).slice(0,6);
   return`<article class="card">
    <div class="card-band" style="background:${c.color}">
-     <div class="glyph">${c.glyph}</div>
-     <div><p class="k">${esc(r.kind)} · ${esc(r.time)}</p><p class="t">${esc(r.name)}</p></div>
+     ${glyph(c)}
+     <div><p class="k">${esc(KINDS[r.kind])} · ${r.min} min · ${esc(c.name)}</p><p class="t">${esc(r.name)}</p></div>
    </div>
-   <div class="card-body">
-     <div class="taglist">${r.ing.slice(0,6).map(x=>`<span class="tag">${esc(x[0])}</span>`).join("")}</div>
-     <div class="macros">${ring(r.p)}
-       <div class="mstats">
-         <div class="mstat"><p class="l">Protein</p><p class="v tnum">${r.p}g</p></div>
-         <div class="mstat"><p class="l">Calories</p><p class="v tnum">${r.cal}</p></div>
-         <div class="mstat"><p class="l">C / F</p><p class="v tnum">${r.c} / ${r.f}</p></div>
-       </div>
-     </div>
+   <div class="card-body">${badges(r)}
+     <div class="taglist">${hero.map(x=>`<span class="tag">${esc(tagName(x[0]))}</span>`).join("")}</div>
+     <div class="macros">${ring(r.p)}${mstats(r)}</div>
      <div class="cardacts">
        <button class="btn btn-ghost" data-act="openr" data-id="${r.id}">See recipe</button>
+       <button class="iconbtn" data-act="saver" data-id="${r.id}" aria-pressed="${isSaved}" aria-label="${isSaved?"Remove from saved":"Save recipe"}">${svg("heart")}</button>
        <button class="iconbtn" data-act="weekr" data-id="${r.id}" aria-pressed="${!!isWeek}" aria-label="Make this week's prep">${svg("cart")}</button>
      </div>
    </div></article>`;
@@ -682,18 +754,38 @@ function steps(b){
   return out;
 }
 
+// ---- Shopping list ----
+const AISLES=[["produce","Produce"],["fridge","Fridge & deli"],["cheese","Cheese"],["meat","Meat & seafood"],["frozen","Frozen"],
+ ["pantry","Pantry & cans"],["bakery","Bread"],["staple","Check your pantry"]];
+const BOWL_AISLE={bakedtofu:"fridge",hardegg:"fridge",cottage:"fridge",lentils:"fridge",kimchi:"fridge",seaweed:"fridge",
+ edamame:"frozen",chickmeatball:"frozen",turkeymeatball:"frozen",cauli:"frozen",brownrice:"frozen",corn:"frozen",
+ chickpeas:"pantry",blackbeans:"pantry",cannellini:"pantry",pintobeans:"pantry",crispychickpeas:"pantry",
+ feta:"cheese",cotija:"cheese",blackolive:"pantry",kalamata:"pantry",roastedpepper:"pantry",artichoke:"pantry",sundried:"pantry",
+ pepperoncini:"pantry",jalapeno:"pantry",pickledonion:"pantry",dates:"pantry",apricot:"pantry",
+ tzatziki:"fridge",chipotlecrema:"fridge",harissayogurt:"fridge",curryyogurt:"fridge",zhoug:"fridge",greengoddess:"fridge"};
+function bowlAisle(i){
+  if(BOWL_AISLE[i.id])return BOWL_AISLE[i.id];
+  if(PROTEINS.includes(i))return"meat";
+  if(BASES.includes(i))return i.style==="salad"?"produce":"pantry";
+  return MIXINS.includes(i)?"produce":"pantry";
+}
 function shoppingItems(){
   const w=S.week;if(!w)return[];
-  if(w.kind)return w.ing.map(x=>({name:x[0],q:frac(x[1])+(x[2]==="ea"?"":" "+x[2]),key:x[0]}));
+  if(isRecipe(w)){
+    const sum={};
+    w.ing.forEach(x=>{sum[x[0]]=(sum[x[0]]||0)+rqty(w,x);});
+    return Object.keys(sum).map(k=>{const p=TJ[k];return{key:k,name:tjName(k),q:shopQty(k,sum[k]),aisle:p.a,tj:p.tj,s:p.s,sub:p.sub};});
+  }
   const n=S.s.servings;
   return[w.base,...w.proteins,...w.mixins,w.dressing,w.topper]
     .filter(i=>i&&!i.skip&&i.id!=="none")
-    .map(i=>({name:i.name,q:qty(i,n),key:i.id}));
+    .map(i=>({name:i.name,q:qty(i,n),key:i.id,aisle:bowlAisle(i)}));
 }
+const seasonNote=p=>`${p.s==="new"?"New at TJ's":"Seasonal at TJ's"} — if it's gone, use ${esc(tjName(p.sub).toLowerCase())}`;
 
 const LOVE_NOTE="Made with love, just for you.";
 
-function view(){
+function view(keepScroll){
   const a=document.getElementById("app");
   if(S.tab==="discover")a.innerHTML=vDiscover();
   if(S.tab==="saved")a.innerHTML=vSaved();
@@ -701,7 +793,7 @@ function view(){
   if(S.tab==="settings")a.innerHTML=vSettings();
   a.insertAdjacentHTML("beforeend",`<p class="lovenote">${esc(LOVE_NOTE)}</p>`);
   document.getElementById("tabs").innerHTML=vTabs();
-  window.scrollTo(0,0);
+  if(!keepScroll)window.scrollTo(0,0);
 }
 
 function vTabs(){
@@ -711,21 +803,25 @@ function vTabs(){
 }
 
 function vDiscover(){
-  const cs=CUISINES.filter(c=>S.adv||!c.adv);
   const isCook=S.mode==="cook";
-  const list=isCook?cookResults:results;
   return`<header class="top">
     <div class="top-row"><div>
       <p class="eyebrow">${new Date().toLocaleDateString(undefined,{month:"long",day:"numeric"})} · ${season()==="cook"?"cold months":"warm months"}</p>
-      <h1>Lunch, sorted<br>by Monday.</h1>
+      <h1>${isCook?"Something warm<br>for the week.":"Lunch, sorted<br>by Monday."}</h1>
     </div></div>
   </header>
   <div class="seg" role="group" aria-label="Cooking mode" style="margin-bottom:16px">
-    <button data-mode="assemble" aria-pressed="${!isCook}">Assemble</button>
+    <button data-mode="assemble" aria-pressed="${!isCook}">Assemble bowls</button>
     <button data-mode="cook" aria-pressed="${isCook}">Cook</button>
   </div>
   ${weekBar()}
-  <p class="eyebrow" style="margin-bottom:9px">How far out there</p>
+  ${isCook?vCook():vAssemble()}`;
+}
+
+function vAssemble(){
+  const cs=CUISINES.filter(c=>!c.cookOnly&&(S.adv||!c.adv));
+  const list=results;
+  return`<p class="eyebrow" style="margin-bottom:9px">How far out there</p>
   <div class="seg" style="margin-bottom:18px" role="group" aria-label="Adventurousness">
     <button data-adv="0" aria-pressed="${!S.adv}">Standard</button>
     <button data-adv="1" aria-pressed="${S.adv}">Adventurous</button>
@@ -733,11 +829,37 @@ function vDiscover(){
   <p class="eyebrow" style="margin-bottom:9px">Cuisines</p>
   <div class="chips" style="margin-bottom:20px">${cs.map(c=>
     `<button class="chip" data-cui="${c.id}" style="--dot:${c.color}" aria-pressed="${S.cuisines.includes(c.id)}"><span class="dot"></span>${esc(c.name)}</button>`).join("")}</div>
-  <button class="btn btn-primary" data-act="gen" style="margin-bottom:8px">${list.length?"Shuffle new ideas":isCook?"Show me this week's recipes":"Build my week"}</button>
-  ${list.length?`<button class="btn btn-ghost" data-act="picker" style="margin-bottom:22px">Not feeling these — let me pick</button>`:`<p class="muted" style="font-size:13px;text-align:center;padding:10px 20px 22px">${isCook?"Warm one-pot and sheet pan lunches, portioned for the week.":"Every bowl lands in your protein window and layers so it won't go soggy."}</p>`}
-  ${list.length?`<div class="section-h"><h2>${list.length} ${isCook?"recipes":"bowls"}</h2><button class="linkbtn" data-act="gen">Shuffle</button></div>`:""}
-  ${list.map(b=>isCook?recipeCard(b):bowlCard(b,"results")).join("")}
-  ${list.length?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Load ${isCook?"more recipes":"12 more bowls"}</button>`:""}`;
+  <button class="btn btn-primary" data-act="gen" style="margin-bottom:8px">${list.length?"Shuffle new ideas":"Build my week"}</button>
+  ${list.length?`<button class="btn btn-ghost" data-act="picker" style="margin-bottom:22px">Not feeling these — let me pick</button>`:`<p class="muted" style="font-size:13px;text-align:center;padding:10px 20px 22px">Every bowl lands in your protein window and layers so it won't go soggy.</p>`}
+  ${list.length?`<div class="section-h"><h2>${list.length} bowls</h2><button class="linkbtn" data-act="gen">Shuffle</button></div>`:""}
+  ${list.map(b=>bowlCard(b,"results")).join("")}
+  ${list.length?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Load 12 more bowls</button>`:""}`;
+}
+
+function vCook(){
+  const c=S.cook;
+  return`<input class="search" id="rq" type="search" enterkeyhint="search" placeholder="Search ${RECIPES.length} recipes — try “lentil” or “gnocchi”" value="${esc(c.q)}" autocomplete="off" aria-label="Search recipes">
+  <div class="scroller" style="margin-top:14px" role="group" aria-label="Type">${KGROUPS.map(([id,l])=>
+    `<button class="chip plain sm" data-kind="${id}" aria-pressed="${c.kind===id}">${l}</button>`).join("")}</div>
+  <div class="scroller" style="margin-top:8px" role="group" aria-label="Filters">${FILTERS.map(([id,l])=>
+    `<button class="chip sm" data-filt="${id}" aria-pressed="${c.f.includes(id)}">${l}</button>`).join("")}</div>
+  <details class="cuis" ${c.cuOpen?"open":""}><summary>Cuisine · <span class="muted">${c.cu.length?esc(c.cu.map(id=>cui(id).name).join(", ")):"any"}</span></summary>
+   <div class="chips" style="margin-top:10px">${CUISINES.map(x=>
+    `<button class="chip sm" data-rcu="${x.id}" style="--dot:${x.color}" aria-pressed="${c.cu.includes(x.id)}"><span class="dot"></span>${esc(x.name)}</button>`).join("")}</div></details>
+  <div class="seg sm" role="group" aria-label="Sort" style="margin-top:12px">${SORTS.map(([id,l])=>
+    `<button data-sort="${id}" aria-pressed="${c.sort===id}">${l}</button>`).join("")}</div>
+  <div id="rlist">${vRecipeList()}</div>`;
+}
+
+function vRecipeList(){
+  const list=cookList();
+  if(!list.length)return`<div class="empty"><div class="em">${svg("pot")}</div><h3>Nothing matches</h3>
+    <p>Loosen a filter or clear the search.</p>
+    <button class="btn btn-ghost btn-sm" data-act="clearfilt" style="margin:14px auto 0">Clear all filters</button></div>`;
+  return`<div class="section-h"><h2 class="tnum">${list.length} recipe${list.length>1?"s":""}</h2>
+    <span><button class="linkbtn" data-act="surprise">Surprise me</button>${S.cook.sort==="mix"?` · <button class="linkbtn" data-act="reshuffle">Shuffle</button>`:""}</span></div>
+  ${list.slice(0,cookShown).map(recipeCard).join("")}
+  ${list.length>cookShown?`<button class="btn btn-ghost" data-act="more" style="margin:6px 0 10px">Show ${Math.min(12,list.length-cookShown)} more</button>`:""}`;
 }
 
 function weekBar(){
@@ -747,39 +869,58 @@ function weekBar(){
 }
 
 function vSaved(){
-  if(!S.saved.length)return`<header class="top"><h1>Saved</h1></header>
+  const rs=S.savedR.map(id=>RBYID[id]).filter(Boolean),n=rs.length+S.saved.length;
+  if(!n)return`<header class="top"><h1>Saved</h1></header>
    <div class="empty"><div class="em">${svg("heart")}</div><h3>Nothing saved yet</h3>
-   <p>Tap the heart on any bowl and it'll wait here for you.</p></div>`;
-  return`<header class="top"><h1>Saved</h1><p class="muted" style="font-size:14px;margin-top:6px">${S.saved.length} bowl${S.saved.length>1?"s":""} you liked.</p></header>
-   ${weekBar()}${S.saved.map(b=>bowlCard(b,"saved")).join("")}`;
+   <p>Tap the heart on any recipe or bowl and it'll wait here for you.</p></div>`;
+  return`<header class="top"><h1>Saved</h1><p class="muted" style="font-size:14px;margin-top:6px">${n} thing${n>1?"s":""} you liked.</p></header>
+   ${weekBar()}
+   ${rs.length?`<div class="section-h"><h2>Recipes</h2></div>${rs.map(recipeCard).join("")}`:""}
+   ${S.saved.length?`<div class="section-h"><h2>Bowls</h2></div>${S.saved.map(b=>bowlCard(b,"saved")).join("")}`:""}`;
+}
+
+function shopRow(i){
+  return`<div class="row${S.checked[i.key]?" done":""}"><button class="check" data-check="${esc(i.key)}" aria-pressed="${!!S.checked[i.key]}" aria-label="${esc(i.name)}">${svg("check",2.6)}</button>
+   <span class="rmain"><span class="rname">${esc(i.name)}</span>${i.tj?`<span class="tjmark">TJ'S</span>`:""}
+   ${i.s?`<span class="rsub">${seasonNote(i)}</span>`:""}</span><span class="rqty">${esc(i.q)}</span></div>`;
 }
 
 function vShop(){
   const w=S.week;
   if(!w)return`<header class="top"><h1>This week</h1></header>
    <div class="empty"><div class="em">${svg("cart")}</div><h3>No prep picked yet</h3>
-   <p>Tap the cart icon on a bowl to set it as this week's batch and get the shopping list.</p></div>`;
+   <p>Tap the cart icon on a recipe or bowl to set it as this week's batch and get the shopping list.</p></div>${vFreezer()}`;
   const items=shoppingItems(),done=items.filter(i=>S.checked[i.key]).length;
-  const c=cui(w.cuisine),m=w.kind?{cal:w.cal,p:w.p,c:w.c,f:w.f}:w.m;
+  const m=isRecipe(w)?w:w.m;
+  const groups=AISLES.map(([a,l])=>[l,items.filter(i=>i.aisle===a)]).filter(g=>g[1].length);
   return`<header class="top"><p class="eyebrow">This week's prep</p><h1>${esc(w.name)}</h1></header>
    <div class="grid2" style="margin-bottom:16px">
      <div class="mini"><p class="ml">Servings</p><p class="mv tnum">${S.s.servings}</p></div>
-     <div class="mini"><p class="ml">Per bowl</p><p class="mv tnum">${m.p}g<span style="font-size:13px;font-weight:500;color:var(--ink-3)"> protein</span></p></div>
+     <div class="mini"><p class="ml">Per lunch</p><p class="mv tnum">${m.p}g<span style="font-size:13px;font-weight:500;color:var(--ink-3)"> protein</span></p></div>
    </div>
    <div class="section-h"><h2>Shopping list</h2><span class="muted tnum" style="font-size:13px">${done}/${items.length}</span></div>
-   <div class="panel">${items.map(i=>
-     `<div class="row${S.checked[i.key]?" done":""}"><button class="check" data-check="${esc(i.key)}" aria-pressed="${!!S.checked[i.key]}" aria-label="${esc(i.name)}">${svg("check",2.6)}</button>
-      <span class="rname">${esc(i.name)}</span><span class="rqty">${esc(i.q)}</span></div>`).join("")}</div>
-   <button class="btn btn-ghost" data-act="openweek" style="margin:16px 0 8px">See the prep steps</button>
+   <div class="panel">${groups.map(([l,arr])=>`<p class="aisle">${l}</p>${arr.map(shopRow).join("")}`).join("")}</div>
+   <button class="btn btn-ghost" data-act="copylist" style="margin:16px 0 8px">Share what's left on the list</button>
+   <button class="btn btn-ghost" data-act="openweek" style="margin-bottom:8px">See the ${isRecipe(w)?"recipe":"prep steps"}</button>
    <button class="btn btn-ghost" data-act="madeit" style="margin-bottom:8px">Made it — clear the week</button>
-   <p class="muted" style="font-size:12.5px;text-align:center;padding:4px 20px 10px">Clearing marks it as made so it won't come up again soon.</p>`;
+   <p class="muted" style="font-size:12.5px;text-align:center;padding:4px 20px 10px">Clearing marks it as made so it won't come up again soon.</p>
+   ${vFreezer()}`;
+}
+
+function vFreezer(){
+  if(!S.freezer.length)return"";
+  const total=S.freezer.reduce((t,f)=>t+f.n,0),day=864e5;
+  return`<div class="section-h"><h2>In the freezer</h2><span class="muted tnum" style="font-size:13px">${total} portion${total>1?"s":""}</span></div>
+  <div class="panel">${S.freezer.map((f,i)=>`<div class="row"><span class="rmain"><span class="rname">${esc(f.name)}</span>
+    <span class="rsub">${f.n} portion${f.n>1?"s":""} · frozen ${new Date(f.d).toLocaleDateString(undefined,{month:"short",day:"numeric"})}${Date.now()-f.d>75*day?" · eat these soon":""}</span></span>
+    <button class="pillbtn" data-thaw="${i}">Ate one</button></div>`).join("")}</div>`;
 }
 
 function vSettings(){
   const s=S.s;
   return`<header class="top"><h1>Settings</h1></header>
   <div class="panel" style="margin-bottom:20px">
-    <div class="field"><div><p class="fl">Servings per batch</p><p class="fh">How many lunches you prep at once</p></div>
+    <div class="field"><div><p class="fl">Servings per batch</p><p class="fh">How many lunches you prep at once — recipes scale to this</p></div>
       ${stepper("servings",s.servings,1,10)}</div>
     <div class="field"><div><p class="fl">Protein floor</p><p class="fh">No bowl below this</p></div>${stepper("pMin",s.pMin,15,50,5,"g")}</div>
     <div class="field"><div><p class="fl">Protein ceiling</p><p class="fh">Upper end of the window</p></div>${stepper("pMax",s.pMax,20,70,5,"g")}</div>
@@ -792,13 +933,14 @@ function vSettings(){
    :`<p class="muted" style="font-size:13.5px;margin-bottom:20px">Ban an ingredient from any bowl's prep screen and it'll never turn up again.</p>`}
   <div class="section-h"><h2>Library</h2></div>
   <div class="panel" style="margin-bottom:20px">
-    <div class="row"><span class="rname">Ingredients</span><span class="rqty tnum">${PROTEINS.length+BASES.length+MIXINS.length+DRESSINGS.length+TOPPERS.length}</span></div>
-    <div class="row"><span class="rname">Cuisines</span><span class="rqty tnum">${CUISINES.length}</span></div>
-    <div class="row"><span class="rname">Cook-mode recipes</span><span class="rqty tnum">${COOK_RECIPES.length}</span></div>
-    <div class="row"><span class="rname">Bowls you've made</span><span class="rqty tnum">${S.history.length}</span></div>
+    <div class="row"><span class="rname">Cook recipes</span><span class="rqty tnum">${RECIPES.length}</span></div>
+    <div class="row"><span class="rname">Trader Joe's products used</span><span class="rqty tnum">${Object.values(TJ).filter(p=>p.tj).length}</span></div>
+    <div class="row"><span class="rname">Seasonal-ingredient recipes</span><span class="rqty tnum">${RECIPES.filter(isSeasonal).length}</span></div>
+    <div class="row"><span class="rname">Bowl ingredients</span><span class="rqty tnum">${PROTEINS.length+BASES.length+MIXINS.length+DRESSINGS.length+TOPPERS.length}</span></div>
+    <div class="row"><span class="rname">Things you've made</span><span class="rqty tnum">${S.history.length}</span></div>
   </div>
   <button class="btn btn-ghost" data-act="reset" style="margin-bottom:10px">Reset everything</button>
-  <p class="muted" style="font-size:12px;text-align:center;padding:0 20px 10px">Saved bowls and settings live in this browser only. Nothing leaves your phone.</p>`;
+  <p class="muted" style="font-size:12px;text-align:center;padding:0 20px 10px">Saved recipes and settings live in this browser only. Nothing leaves your phone. Trader Joe's stock varies by store and season, and macros are estimates.</p>`;
 }
 
 function stepper(k,v,min,max,step,suf){
@@ -810,8 +952,15 @@ function stepper(k,v,min,max,step,suf){
 
 const sheet=document.getElementById("sheet"),scrim=document.getElementById("scrim");
 function openSheet(html){sheet.innerHTML=`<div class="grabber"></div>${html}`;sheet.classList.add("open");scrim.classList.add("open");document.body.style.overflow="hidden";}
-function closeSheet(){sheet.classList.remove("open");scrim.classList.remove("open");document.body.style.overflow="";}
+function closeSheet(){sheetCtx=null;sheet.classList.remove("open");scrim.classList.remove("open");document.body.style.overflow="";}
 scrim.onclick=closeSheet;
+function rerenderSheet(){
+  if(!sheet.classList.contains("open")||!sheetCtx)return;
+  const st=sheet.scrollTop;
+  if(sheetCtx.r)recipeSheet(RBYID[sheetCtx.r]);
+  else{const b=findBowl(sheetCtx.b,sheetCtx.ctx);if(b)bowlSheet(b,sheetCtx.ctx);}
+  sheet.scrollTop=st;
+}
 
 function findBowl(id,ctx){
   return(ctx==="saved"?S.saved:results).find(b=>b.id===id)||S.saved.find(b=>b.id===id)||results.find(b=>b.id===id)||(S.week&&S.week.id===id?S.week:null);
@@ -851,30 +1000,44 @@ function bowlSheet(b,ctx){
     <button class="btn btn-primary" data-act="week" data-id="${b.id}" data-ctx="${ctx}" style="margin-bottom:8px">Make this my week</button>
     <button class="btn btn-ghost" data-act="save" data-id="${b.id}" data-ctx="${ctx}" style="margin-bottom:8px">${isSaved?"Remove from saved":"Save for later"}</button>
   </div>`);
+  sheetCtx={b:b.id,ctx};
 }
 
 function recipeSheet(r){
-  const c=cui(r.cuisine);
+  const c=cui(r.cu),n=S.s.servings,isSaved=S.savedR.includes(r.id),isWeek=S.week&&S.week.id===r.id;
+  const main=r.ing.filter(x=>!TJ[x[0]].st),pantry=r.ing.filter(x=>TJ[x[0]].st);
+  const row=x=>{const p=TJ[x[0]];return`<div class="row"><span class="rmain"><span class="rname">${esc(tjName(x[0]))}</span>${p.tj?`<span class="tjmark">TJ'S</span>`:""}
+    ${x[2]?`<span class="rsub">${esc(x[2])}</span>`:""}${p.s?`<span class="rsub">${seasonNote(p)}</span>`:""}</span>
+    <span class="rqty">${esc(fmt(rqty(r,x),p.u))}</span></div>`;};
+  const box=(h,t)=>`<div class="callout"><p class="eyebrow">${h}</p><p>${esc(t)}</p></div>`;
   openSheet(`
   <div class="sheet-head">
-    <div><p class="eyebrow" style="color:${c.color}">${esc(c.name)} · ${esc(r.kind)} · ${esc(r.time)}</p>
+    <div><p class="eyebrow" style="color:${c.color}">${esc(c.name)} · ${esc(KINDS[r.kind])} · ${r.min} min</p>
     <h2 style="margin-top:4px">${esc(r.name)}</h2></div>
     <button class="closebtn" data-act="close" aria-label="Close">${svg("x",2.2)}</button>
   </div>
   <div class="wrap">
-    <div class="grid2" style="margin-bottom:8px">
+    ${badges(r)}
+    <div class="grid2" style="margin-bottom:4px">
       <div class="mini"><p class="ml">Protein</p><p class="mv tnum">${r.p}g</p></div>
       <div class="mini"><p class="ml">Calories</p><p class="mv tnum">${r.cal}</p></div>
       <div class="mini"><p class="ml">Carbs</p><p class="mv tnum">${r.c}g</p></div>
       <div class="mini"><p class="ml">Fat</p><p class="mv tnum">${r.f}g</p></div>
     </div>
-    <div class="section-h"><h3>What you need</h3><span class="muted" style="font-size:12px">makes 5</span></div>
-    <div class="panel">${r.ing.map(x=>`<div class="row"><span class="rname">${esc(x[0])}</span><span class="rqty">${esc(frac(x[1])+(x[2]==="ea"?"":" "+x[2]))}</span></div>`).join("")}</div>
+    <p class="muted" style="font-size:12px;margin:0 2px">Per lunch, estimated.${passes(r)?" Fits your numbers.":""}</p>
+    <div class="section-h"><h3>What you need</h3>${stepper("servings",n,1,10)}</div>
+    <p class="muted" style="font-size:12.5px;margin:-4px 2px 10px">Makes ${n} lunch${n>1?"es":""}${n!==r.serves?` · scaled from ${r.serves}`:""}</p>
+    <div class="panel">${main.map(row).join("")}</div>
+    ${pantry.length?`<p class="eyebrow" style="margin:16px 2px 8px">From your pantry</p><div class="panel">${pantry.map(row).join("")}</div>`:""}
     <div class="section-h"><h3>Method</h3></div>
     <div class="panel stepwrap">${r.steps.map((s,i)=>`<div class="step"><span class="sn">${i+1}</span><span class="st">${esc(s)}</span></div>`).join("")}</div>
-    ${r.note?`<p class="muted" style="font-size:13px;margin:12px 2px 0">${esc(r.note)}</p>`:""}
-    <button class="btn btn-primary" data-act="weekr" data-id="${r.id}" style="margin:18px 0 8px">Make this my week</button>
+    ${r.alt?box("Hands-off option",r.alt):""}
+    ${r.top?box("When you eat it",r.top):""}
+    ${box("Storage",`Keeps ${r.keeps} days in the fridge.${r.tags.includes("freezer")?" Freezes well for up to 3 months — thaw overnight in the fridge.":""}${r.note?" "+r.note:""}`)}
+    <button class="btn btn-primary" data-act="weekr" data-id="${r.id}" style="margin:18px 0 8px">${isWeek?"Remove from this week":"Make this my week"}</button>
+    <button class="btn btn-ghost" data-act="saver" data-id="${r.id}" style="margin-bottom:8px">${isSaved?"Remove from saved":"Save for later"}</button>
   </div>`);
+  sheetCtx={r:r.id};
 }
 
 function pickerSheet(){
@@ -895,7 +1058,23 @@ function pickerSheet(){
     ${grp("Dressing",inC(DRESSINGS))}
     <button class="btn btn-primary" data-act="findlike" style="margin:22px 0 8px">Find bowls like this<span class="tnum" style="opacity:.7">${pickSel.length?" · "+pickSel.length:""}</span></button>
   </div>`);
+  sheetCtx=null;
 }
+
+function freezeSheet(w){
+  const opts=[0];for(let i=1;i<=S.s.servings;i++)opts.push(i);
+  openSheet(`
+  <div class="sheet-head">
+    <div><p class="eyebrow">Nice work</p><h2 style="margin-top:4px">Stash any in the freezer?</h2></div>
+    <button class="closebtn" data-act="close" aria-label="Close">${svg("x",2.2)}</button>
+  </div>
+  <div class="wrap">
+    <p class="muted" style="font-size:14px;margin-bottom:16px">${esc(w.name)} freezes well. Portions you freeze show up on this tab so you don't forget they're in there.</p>
+    <div class="chips">${opts.map(i=>`<button class="chip plain" data-freeze="${i}">${i?i+" portion"+(i>1?"s":""):"None this time"}</button>`).join("")}</div>
+  </div>`);
+  sheetCtx=null;
+}
+
 function setTab(t){S.tab=t;save();view();}
 
 function toggleSave(b){
@@ -904,16 +1083,30 @@ function toggleSave(b){
   else{S.saved.unshift(b);toast("Saved");}
   save();
 }
+function toggleIn(arr,v){const i=arr.indexOf(v);if(i>=0)arr.splice(i,1);else arr.push(v);return i<0;}
 function setWeek(b){
   if(S.week&&S.week.id===b.id){S.week=null;S.checked={};toast("Cleared this week");}
   else{S.week=b;S.checked={};toast("Set as this week's prep");}
   save();
 }
+function finishWeek(n){
+  const w=S.week;if(!w)return;
+  if(n>0)S.freezer.unshift({id:w.id,name:w.name,n,d:Date.now()});
+  S.history=[w.id,...S.history.filter(x=>x!==w.id)].slice(0,60);
+  S.week=null;S.checked={};save();closeSheet();view();
+  toast(n?`Stashed ${n} in the freezer`:"Nice. Marked as made.");
+}
+function listText(){
+  const items=shoppingItems().filter(i=>!S.checked[i.key]);
+  const parts=AISLES.map(([a,l])=>{const arr=items.filter(i=>i.aisle===a);
+    return arr.length?`${l.toUpperCase()}\n${arr.map(i=>`- ${i.name}${i.q?" — "+i.q:""}`).join("\n")}`:"";}).filter(Boolean);
+  return`${S.week.name}\n\n${parts.join("\n\n")}`;
+}
 
 function replaceIn(arr,id,nb){const i=arr.findIndex(x=>x.id===id);if(i>=0)arr[i]=nb;}
 
 document.addEventListener("click",e=>{
-  const t=e.target.closest("[data-tab],[data-mode],[data-adv],[data-cui],[data-act],[data-check],[data-set],[data-ban],[data-unban],[data-pick],[data-swap]");
+  const t=e.target.closest("[data-tab],[data-mode],[data-adv],[data-cui],[data-act],[data-check],[data-set],[data-ban],[data-unban],[data-pick],[data-swap],[data-kind],[data-filt],[data-rcu],[data-sort],[data-freeze],[data-thaw]");
   if(!t)return;
   const d=t.dataset;
 
@@ -922,15 +1115,21 @@ document.addEventListener("click",e=>{
   if(d.adv!==undefined&&d.adv!==""){
     S.adv=d.adv==="1";
     if(!S.adv)S.cuisines=S.cuisines.filter(id=>!cui(id).adv);
-    save();view();return;
+    save();view(true);return;
   }
-  if(d.cui){
-    const i=S.cuisines.indexOf(d.cui);
-    if(i>=0)S.cuisines.splice(i,1);else S.cuisines.push(d.cui);
-    save();view();return;
+  if(d.cui){toggleIn(S.cuisines,d.cui);save();view(true);return;}
+  if(d.kind){S.cook.kind=d.kind;cookShown=12;save();view(true);return;}
+  if(d.filt){toggleIn(S.cook.f,d.filt);cookShown=12;save();view(true);return;}
+  if(d.rcu){toggleIn(S.cook.cu,d.rcu);cookShown=12;save();view(true);return;}
+  if(d.sort){S.cook.sort=d.sort;cookShown=12;save();view(true);return;}
+  if(d.freeze!==undefined){finishWeek(+d.freeze);return;}
+  if(d.thaw!==undefined){
+    const f=S.freezer[+d.thaw];if(!f)return;
+    if(--f.n<=0)S.freezer.splice(+d.thaw,1);
+    save();view(true);toast("Enjoy it");return;
   }
   if(d.check!==undefined){
-    S.checked[d.check]=!S.checked[d.check];save();view();return;
+    S.checked[d.check]=!S.checked[d.check];save();view(true);return;
   }
   if(d.set){
     const k=d.set,step=+d.d;
@@ -941,18 +1140,17 @@ document.addEventListener("click",e=>{
     if(k==="pMax"&&v<S.s.pMin+5)v=S.s.pMin+5;
     if(k==="cMin"&&v>S.s.cMax-60)v=S.s.cMax-60;
     if(k==="cMax"&&v<S.s.cMin+60)v=S.s.cMin+60;
-    S.s[k]=v;save();view();return;
+    S.s[k]=v;save();view(true);rerenderSheet();return;
   }
   if(d.ban){
     if(!S.banned.includes(d.ban))S.banned.push(d.ban);
     results=results.filter(b=>![b.base,...b.proteins,...b.mixins,b.dressing,b.topper].some(i=>i&&i.id===d.ban));
-    save();closeSheet();view();toast("Banned "+(BYID[d.ban]||{name:""}).name.toLowerCase());return;
+    save();closeSheet();view(true);toast("Banned "+(BYID[d.ban]||{name:""}).name.toLowerCase());return;
   }
-  if(d.unban){S.banned=S.banned.filter(x=>x!==d.unban);save();view();return;}
+  if(d.unban){S.banned=S.banned.filter(x=>x!==d.unban);save();view(true);return;}
   if(d.pick){
-    const i=pickSel.indexOf(d.pick);
-    if(i>=0)pickSel.splice(i,1);else pickSel.push(d.pick);
-    pickerSheet();sheet.scrollTop=0;return;
+    toggleIn(pickSel,d.pick);
+    const st=sheet.scrollTop;pickerSheet();sheet.scrollTop=st;return;
   }
   if(d.swap){
     const b=findBowl(d.id,d.ctx);if(!b)return;
@@ -960,38 +1158,31 @@ document.addEventListener("click",e=>{
     if(nb.id===b.id){toast("Nothing else fits there");return;}
     replaceIn(results,b.id,nb);replaceIn(S.saved,b.id,nb);
     if(S.week&&S.week.id===b.id){S.week=nb;S.checked={};}
-    save();bowlSheet(nb,d.ctx);view();return;
+    save();bowlSheet(nb,d.ctx);view(true);return;
   }
 
   const act=d.act;
   if(act==="close"){closeSheet();return;}
   if(act==="gen"){
     if(!activeCuisines().length){toast("Pick at least one cuisine");return;}
-    if(S.mode==="cook"){
-      const cs=activeCuisines();
-      let pool=COOK_RECIPES.filter(r=>cs.includes(r.cuisine)&&!S.history.includes(r.id));
-      if(pool.length<4)pool=COOK_RECIPES.filter(r=>cs.includes(r.cuisine));
-      if(!pool.length)pool=COOK_RECIPES;
-      cookResults=pool.sort(()=>Math.random()-.5).slice(0,8);
-    }else{
-      results=[];results=generate(8);
-      if(!results.length)toast("Nothing fits those targets — try widening them in Settings");
-    }
+    results=[];results=generate(8);
+    if(!results.length)toast("Nothing fits those targets — try widening them in Settings");
     view();return;
   }
   if(act==="more"){
-    if(S.mode==="cook"){
-      const have=cookResults.map(r=>r.id);
-      const rest=COOK_RECIPES.filter(r=>activeCuisines().includes(r.cuisine)&&!have.includes(r.id));
-      if(!rest.length){toast("That's every recipe for these cuisines");return;}
-      cookResults=cookResults.concat(rest.sort(()=>Math.random()-.5).slice(0,6));
-    }else{
-      const more=generate(12);
-      if(!more.length){toast("Out of new combinations — try more cuisines");return;}
-      results=results.concat(more);
-    }
-    view();return;
+    if(S.mode==="cook"){cookShown+=12;view(true);return;}
+    const more=generate(12);
+    if(!more.length){toast("Out of new combinations — try more cuisines");return;}
+    results=results.concat(more);
+    view(true);return;
   }
+  if(act==="reshuffle"){cookOrder=shuffle(cookOrder);cookShown=12;view(true);return;}
+  if(act==="surprise"){
+    const list=cookList(),fresh=list.filter(r=>!S.history.includes(r.id));
+    if(list.length)recipeSheet(rnd(fresh.length?fresh:list));
+    return;
+  }
+  if(act==="clearfilt"){Object.assign(S.cook,{kind:"all",f:[],cu:[],q:""});cookShown=12;save();view(true);return;}
   if(act==="picker"){pickSel=[];pickerSheet();return;}
   if(act==="findlike"){
     if(!pickSel.length){toast("Pick at least one ingredient");return;}
@@ -1006,33 +1197,53 @@ document.addEventListener("click",e=>{
     view();return;
   }
   if(act==="open"){const b=findBowl(d.id,d.ctx);if(b)bowlSheet(b,d.ctx);return;}
-  if(act==="openr"){const r=COOK_RECIPES.find(x=>x.id===d.id);if(r)recipeSheet(r);return;}
+  if(act==="openr"){const r=RBYID[d.id];if(r)recipeSheet(r);return;}
   if(act==="openweek"){
     if(!S.week)return;
-    if(S.week.kind)recipeSheet(S.week);else bowlSheet(S.week,"week");
+    if(isRecipe(S.week))recipeSheet(S.week);else bowlSheet(S.week,"week");
     return;
   }
-  if(act==="save"){const b=findBowl(d.id,d.ctx);if(!b)return;toggleSave(b);if(sheet.classList.contains("open"))bowlSheet(b,d.ctx);view();return;}
-  if(act==="week"){const b=findBowl(d.id,d.ctx);if(!b)return;setWeek(b);closeSheet();view();return;}
-  if(act==="weekr"){const r=COOK_RECIPES.find(x=>x.id===d.id);if(!r)return;setWeek(r);closeSheet();view();return;}
-  if(act==="madeit"){
-    if(S.week){S.history.unshift(S.week.id);S.history=S.history.slice(0,60);}
-    S.week=null;S.checked={};save();view();toast("Nice. Marked as made.");return;
+  if(act==="save"){const b=findBowl(d.id,d.ctx);if(!b)return;toggleSave(b);if(sheet.classList.contains("open"))bowlSheet(b,d.ctx);view(true);return;}
+  if(act==="saver"){
+    const added=toggleIn(S.savedR,d.id);save();toast(added?"Saved":"Removed from saved");
+    rerenderSheet();view(true);return;
   }
-  if(act==="clearban"){S.banned=[];save();view();return;}
+  if(act==="week"){const b=findBowl(d.id,d.ctx);if(!b)return;setWeek(b);closeSheet();view(true);return;}
+  if(act==="weekr"){const r=RBYID[d.id];if(!r)return;setWeek(r);closeSheet();view(true);return;}
+  if(act==="madeit"){
+    if(!S.week)return;
+    if(isRecipe(S.week)&&S.week.tags.includes("freezer"))freezeSheet(S.week);
+    else finishWeek(0);
+    return;
+  }
+  if(act==="copylist"){
+    if(!S.week)return;
+    const text=listText();
+    if(navigator.share)navigator.share({title:"Shopping list",text}).catch(()=>{});
+    else if(navigator.clipboard)navigator.clipboard.writeText(text).then(()=>toast("List copied"),()=>toast("Couldn't copy the list"));
+    return;
+  }
+  if(act==="clearban"){S.banned=[];save();view(true);return;}
   if(act==="reset"){
-    if(confirm("Reset saved bowls, settings, and history?")){
-      localStorage.removeItem(LS);S=JSON.parse(JSON.stringify(DEF));S.mode=season();
-      results=[];cookResults=[];save();view();toast("Reset");
+    if(confirm("Reset saved recipes, bowls, settings, freezer and history?")){
+      localStorage.removeItem(LS);S=fresh();S.mode=season();
+      results=[];save();view();toast("Reset");
     }
     return;
   }
 });
 
+document.addEventListener("input",e=>{
+  if(e.target.id!=="rq")return;
+  S.cook.q=e.target.value;cookShown=12;save();
+  document.getElementById("rlist").innerHTML=vRecipeList();
+});
+document.addEventListener("toggle",e=>{
+  if(e.target.classList&&e.target.classList.contains("cuis")){S.cook.cuOpen=e.target.open;save();}
+},true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.classList.contains("open"))closeSheet();});
 
 view();
 </script>
 </body>
 </html>
- 
