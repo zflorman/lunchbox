@@ -39,6 +39,11 @@
   --c-comfort:#7A5230;
   --c-cajun:#2E6F8E;
   --c-easteuro:#7D3C55;
+  --c-spanish:#B8401F;
+  --c-vietnamese:#2F7D6D;
+  --c-caribbean:#C24E7A;
+  --c-hawaiian:#1F7FA3;
+  --c-westafrican:#9A6A12;
   --r-card:18px;
   --r-pill:999px;
   --shadow:0 1px 2px rgba(22,33,29,.06), 0 6px 18px rgba(22,33,29,.06);
@@ -72,6 +77,11 @@
     --c-comfort:#B98A5E;
     --c-cajun:#5DA3C4;
     --c-easteuro:#C2708F;
+    --c-spanish:#E3714F;
+    --c-vietnamese:#55B09D;
+    --c-caribbean:#E07BA2;
+    --c-hawaiian:#4FB0D4;
+    --c-westafrican:#CC9A3D;
     --shadow:0 1px 2px rgba(0,0,0,.3), 0 6px 18px rgba(0,0,0,.25);
   }
 }
@@ -262,10 +272,15 @@ details.cuis[open] summary::after{content:" ▴"}
 <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-label="Details"></div>
 <div class="toast" id="toast" role="status" aria-live="polite"></div>
 <script src="recipes/catalog.js"></script>
+<script src="recipes/catalog-more.js"></script>
 <script src="recipes/soups.js"></script>
 <script src="recipes/chili-stew-curry.js"></script>
 <script src="recipes/sheetpan-skillet-bake.js"></script>
 <script src="recipes/bowls-salads-hacks.js"></script>
+<script src="recipes/pasta-noodles.js"></script>
+<script src="recipes/handhelds.js"></script>
+<script src="recipes/salads-more.js"></script>
+<script src="recipes/bowls-world.js"></script>
 <script>
 const CUISINES=[
  {id:"mex",name:"Mexican",color:"var(--c-mexican)",glyph:"M",adv:false},
@@ -283,7 +298,12 @@ const CUISINES=[
  {id:"ita",name:"Italian",color:"var(--c-italian)",glyph:"It",cookOnly:true},
  {id:"ame",name:"Comfort classics",color:"var(--c-comfort)",glyph:"Co",cookOnly:true},
  {id:"caj",name:"Cajun & Creole",color:"var(--c-cajun)",glyph:"Cj",cookOnly:true},
- {id:"eeu",name:"Eastern European",color:"var(--c-easteuro)",glyph:"Eu",cookOnly:true}
+ {id:"eeu",name:"Eastern European",color:"var(--c-easteuro)",glyph:"Eu",cookOnly:true},
+ {id:"spa",name:"Spanish",color:"var(--c-spanish)",glyph:"Es",cookOnly:true},
+ {id:"vie",name:"Vietnamese",color:"var(--c-vietnamese)",glyph:"Vn",cookOnly:true},
+ {id:"car",name:"Caribbean",color:"var(--c-caribbean)",glyph:"Cb",cookOnly:true},
+ {id:"haw",name:"Hawaiian",color:"var(--c-hawaiian)",glyph:"Hw",cookOnly:true},
+ {id:"waf",name:"West African",color:"var(--c-westafrican)",glyph:"Wa",cookOnly:true}
 ];
 const ALLC=CUISINES.map(c=>c.id);
 
@@ -581,11 +601,11 @@ function qty(i,mult){
 // ---- Recipe library helpers ----
 const tjName=k=>TJ[k].n.replace(/\s*\(.*?\)/g,"");
 const tagName=k=>{const n=tjName(k).replace(/^Organic /,"");return n.charAt(0).toUpperCase()+n.slice(1);};
-const PLURAL={cup:1,link:1,can:1,pkg:1,clove:1,bunch:1,head:1,stalk:1,slice:1,block:1,packet:1,cube:1,tub:1,bag:1,jar:1,carton:1,container:1,loaf:1,pint:1,log:1,tray:1,bottle:1,pack:1};
+const PLURAL={wedge:1,cup:1,link:1,can:1,pkg:1,clove:1,bunch:1,head:1,stalk:1,slice:1,block:1,packet:1,cube:1,tub:1,bag:1,jar:1,carton:1,container:1,loaf:1,pint:1,log:1,tray:1,bottle:1,pack:1};
 const WHOLE=["ea","head","bunch","pkg","can","pouch","link","slice","stalk","block","packet","cube"];
 function unitStr(u,n){
   if(u==="ea")return"";
-  if(u==="box"||u==="pouch")return n>1?u+"es":u;
+  if(u==="box"||u==="pouch"||u==="pinch")return n>1?u+"es":u;
   return u+(n>1&&PLURAL[u]?"s":"");
 }
 function fmt(n,u){const us=unitStr(u,n);return(frac(n)+(us?" "+us:"")).trim();}
@@ -598,14 +618,24 @@ function shopQty(k,n){
   if(WHOLE.includes(p.u)){const c=Math.max(1,Math.ceil(n-.34));return fmt(c,p.u);}
   return fmt(n,p.u);
 }
+// Months (0-11) each seasonal tag is usually on shelves.
+const SEASON_MONTHS={fall:[8,9,10,11],winter:[11,0,1],spring:[2,3,4],summer:[5,6,7]};
+const SEASON_NAME={fall:"fall",winter:"winter",spring:"spring",summer:"summer"};
+const inSeason=p=>!p.s||p.s==="new"||SEASON_MONTHS[p.s].includes(new Date().getMonth());
 const isSeasonal=r=>r.ing.some(x=>TJ[x[0]].s);
+const seasonalNow=r=>r.ing.some(x=>TJ[x[0]].s)&&r.ing.every(x=>inSeason(TJ[x[0]]));
+const offSeason=r=>r.ing.some(x=>!inSeason(TJ[x[0]]));
 const hasTag=t=>r=>r.tags.includes(t);
 const FILTERS=[
  ["fits","Fits my numbers",r=>passes(r)],
  ["quick","30 min or less",r=>r.min<=30],
  ["veg","Meatless",hasTag("veg")],
  ["freezer","Freezer-friendly",hasTag("freezer")],
- ["seasonal","Seasonal at TJ's",isSeasonal],
+ ["seasonal","Seasonal at TJ's now",seasonalNow],
+ ["cold","No reheating needed",hasTag("cold")],
+ ["nocook","No-cook",hasTag("nocook")],
+ ["fresh","Fresh & bright",hasTag("fresh")],
+ ["lowcarb","Lower carb",r=>r.c<=30],
  ["hands","Instant Pot / slow cooker",r=>r.tags.includes("ip")||r.tags.includes("slow")],
  ["onepot","One pot or pan",hasTag("onepot")],
  ["cozy","Extra cozy",hasTag("cozy")],
@@ -614,11 +644,14 @@ const FILTERS=[
  ["light","Lighter",hasTag("light")],
  ["new","Haven't made",r=>!S.history.includes(r.id)]
 ];
-const KGROUPS=[["all","All",null],["soup","Soups",["soup"]],["chili","Chili & stew",["chili","stew"]],["curry","Curries",["curry"]],
- ["sheetpan","Sheet pans",["sheetpan"]],["skillet","Skillets",["skillet"]],["bake","Bakes & stuffed",["bake","stuffed"]],
- ["bowl","Bowls & salads",["bowl","salad"]],["grab","Egg bakes & wraps",["eggs","wrap"]],["hack","TJ's hacks",["hack"]]];
+const KGROUPS=[["all","All",null],["bowl","Bowls",["bowl"]],["salad","Salads",["salad"]],["soup","Soups",["soup"]],
+ ["pasta","Pasta & noodles",["pasta","noodles"]],["hand","Tacos, wraps & sandwiches",["taco","wrap","sandwich","flatbread","burger"]],
+ ["chili","Chili & stew",["chili","stew"]],["curry","Curries",["curry"]],["sheetpan","Sheet pans",["sheetpan"]],
+ ["skillet","Skillets & stir-fries",["skillet","stirfry"]],["bake","Bakes & stuffed",["bake","stuffed"]],
+ ["box","Snack boxes",["box"]],["eggs","Egg dishes",["eggs"]],["hack","TJ's hacks",["hack"]]];
 const SORTS=[["mix","Mix it up"],["protein","Most protein"],["quick","Quickest"],["light","Lightest"]];
-RECIPES.forEach(r=>{r._s=[r.name,cui(r.cu).name,KINDS[r.kind],...r.ing.map(x=>TJ[x[0]].n)].join(" ").toLowerCase();});
+const TAGWORDS={veg:"vegetarian meatless",freezer:"freezer",spicy:"spicy",cozy:"cozy",sick:"sick",light:"light",cold:"cold no-reheat",nocook:"no-cook",fresh:"fresh summer"};
+RECIPES.forEach(r=>{r._s=[r.name,cui(r.cu).name,KINDS[r.kind],...r.tags.map(t=>TAGWORDS[t]||""),...r.ing.map(x=>TJ[x[0]].n)].join(" ").toLowerCase();});
 
 function cookList(){
   const c=S.cook,q=c.q.trim().toLowerCase(),g=(KGROUPS.find(k=>k[0]===c.kind)||KGROUPS[0])[2];
@@ -629,7 +662,7 @@ function cookList(){
   if(c.sort==="quick")return list.sort((a,b)=>a.min-b.min);
   if(c.sort==="light")return list.sort((a,b)=>a.cal-b.cal);
   const o={};cookOrder.forEach((id,i)=>o[id]=i);
-  return list.sort((a,b)=>(S.history.includes(a.id)-S.history.includes(b.id))||o[a.id]-o[b.id]);
+  return list.sort((a,b)=>(S.history.includes(a.id)-S.history.includes(b.id))||(offSeason(a)-offSeason(b))||o[a.id]-o[b.id]);
 }
 
 const ICON={
@@ -690,7 +723,8 @@ function bowlCard(b,ctx){
 
 function badges(r){
   const b=[];
-  if(isSeasonal(r))b.push(`<span class="bdg season">TJ's seasonal</span>`);
+  if(isSeasonal(r))b.push(offSeason(r)?`<span class="bdg">Seasonal item — may be gone</span>`:`<span class="bdg season">TJ's seasonal</span>`);
+  if(r.tags.includes("cold"))b.push(`<span class="bdg">No reheat</span>`);
   if(r.tags.includes("freezer"))b.push(`<span class="bdg">Freezes</span>`);
   if(r.tags.includes("veg"))b.push(`<span class="bdg">Meatless</span>`);
   if(r.tags.includes("ip"))b.push(`<span class="bdg">Instant Pot</span>`);
@@ -781,7 +815,7 @@ function shoppingItems(){
     .filter(i=>i&&!i.skip&&i.id!=="none")
     .map(i=>({name:i.name,q:qty(i,n),key:i.id,aisle:bowlAisle(i)}));
 }
-const seasonNote=p=>`${p.s==="new"?"New at TJ's":"Seasonal at TJ's"} — if it's gone, use ${esc(tjName(p.sub).toLowerCase())}`;
+const seasonNote=p=>`${p.s==="new"?"New at TJ's":inSeason(p)?"Seasonal at TJ's":"Usually a "+SEASON_NAME[p.s]+" item at TJ's"} — if it's gone, use ${esc(tjName(p.sub).toLowerCase())}`;
 
 const LOVE_NOTE="Made with love, just for you.";
 
@@ -935,7 +969,7 @@ function vSettings(){
   <div class="panel" style="margin-bottom:20px">
     <div class="row"><span class="rname">Cook recipes</span><span class="rqty tnum">${RECIPES.length}</span></div>
     <div class="row"><span class="rname">Trader Joe's products used</span><span class="rqty tnum">${Object.values(TJ).filter(p=>p.tj).length}</span></div>
-    <div class="row"><span class="rname">Seasonal-ingredient recipes</span><span class="rqty tnum">${RECIPES.filter(isSeasonal).length}</span></div>
+    <div class="row"><span class="rname">Seasonal at TJ's right now</span><span class="rqty tnum">${RECIPES.filter(seasonalNow).length}</span></div>
     <div class="row"><span class="rname">Bowl ingredients</span><span class="rqty tnum">${PROTEINS.length+BASES.length+MIXINS.length+DRESSINGS.length+TOPPERS.length}</span></div>
     <div class="row"><span class="rname">Things you've made</span><span class="rqty tnum">${S.history.length}</span></div>
   </div>
