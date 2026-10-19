@@ -237,39 +237,33 @@ nav.tabs{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--surf
   color:var(--ink);font:inherit;font-size:15px;-webkit-appearance:none;appearance:none}
 .search::placeholder{color:var(--ink-3)}
 .search:focus{outline:none;border-color:var(--ink-2)}
-.scroller{display:flex;gap:8px;overflow-x:auto;margin:0 -16px;padding:2px 16px 4px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
-.scroller::-webkit-scrollbar{display:none}
-.scroller.dragging{cursor:grabbing;user-select:none}
-.scroller.dragging .chip{pointer-events:none}
-@media (hover:hover) and (pointer:fine){
-  .scroller{scrollbar-width:thin;cursor:grab}
-  .scroller::-webkit-scrollbar{display:block;height:6px}
-  .scroller::-webkit-scrollbar-thumb{background:var(--line-strong);border-radius:3px}
-}
-/* Wide screens: more room, chips wrap instead of scrolling, cards in a grid, sheets as a centered panel. */
+/* Wide screens: more room, cards in a grid, sheets as a centered panel. */
 @media (min-width:900px){
   .wrap.wide{max-width:1080px;padding:0 28px}
-  .wide .scroller{flex-wrap:wrap;overflow:visible;margin:0;padding:2px 0}
-  .wide .search,.wide .seg.sm{max-width:560px}
+  .wide .search,.wide .seg.sm,.wide details.dd{max-width:760px}
   .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px;align-items:start}
   .cards .card{margin-bottom:0}
   .sheet{max-width:680px;margin:0 auto;border-radius:24px 24px 0 0}
   .chip:hover,.linkbtn:hover,.iconbtn:hover{border-color:var(--line-strong)}
   .btn-ghost:hover{border-color:var(--line-strong)}
 }
-.scroller .chip{flex:none;white-space:nowrap}
 .chip.sm{padding:6px 13px;font-size:13px}
-.rowlabel{font-size:11px;font-weight:600;letter-spacing:.10em;text-transform:uppercase;color:var(--ink-3);margin:16px 2px 7px}
-.rowlabel span{letter-spacing:.02em;text-transform:none;font-weight:500}
-.rowlabel .linkbtn{font-size:11px;font-weight:600}
+details.dd{background:var(--surface);border:1.5px solid var(--line);border-radius:14px;margin-top:10px}
+details.dd[open]{border-color:var(--line-strong)}
+details.dd summary{list-style:none;cursor:pointer;display:flex;align-items:center;gap:12px;padding:11px 14px;font-size:14px}
+details.dd summary::-webkit-details-marker{display:none}
+details.dd summary::after{content:"";width:8px;height:8px;border-right:2px solid var(--ink-3);border-bottom:2px solid var(--ink-3);
+  transform:rotate(45deg);margin:-4px 2px 0 auto;flex:none;transition:transform .15s}
+details.dd[open] summary::after{transform:rotate(-135deg);margin-top:4px}
+.ddl{font-weight:600;color:var(--ink);flex:none}
+.ddv{color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ddv.on{color:var(--ink);font-weight:600}
+.ddbody{padding:0 14px 14px}
+.ddhint{font-size:12px;color:var(--ink-3);margin:0 0 9px}
+.ddhint .linkbtn{font-size:12px}
 /* Filters stack, so they get their own selected look: lime with a check, distinct from the solid dark type pick. */
 .chip.filt[aria-pressed="true"]{background:var(--lime);border-color:var(--lime);color:#1B2606;font-weight:600}
 .chip.filt[aria-pressed="true"]::before{content:"✓";font-weight:700;margin-right:-2px}
-details.cuis{margin-top:12px}
-details.cuis summary{cursor:pointer;font-size:13px;font-weight:600;color:var(--ink-2);list-style:none;padding:4px 2px}
-details.cuis summary::-webkit-details-marker{display:none}
-details.cuis summary::after{content:" ▾";color:var(--ink-3)}
-details.cuis[open] summary::after{content:" ▴"}
 .badges{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:11px}
 .bdg{font-size:11px;font-weight:600;padding:3px 9px;border-radius:var(--r-pill);background:var(--surface-sunk);color:var(--ink-2)}
 .bdg.season{background:var(--lime);color:#1B2606}
@@ -480,7 +474,7 @@ const TOPPERS=[
 const LS="prepapp.v1";
 const DEF={tab:"discover",
   saved:[],savedR:[],week:null,checked:{},banned:[],history:[],freezer:[],
-  cook:{kind:"all",f:[],cu:[],q:"",sort:"mix",cuOpen:false},
+  cook:{kind:"all",f:[],cu:[],q:"",sort:"mix",open:{}},
   s:{pMin:30,pMax:42,cMin:380,cMax:560,servings:5}};
 const fresh=()=>JSON.parse(JSON.stringify(DEF));
 const RBYID={};RECIPES.forEach(r=>RBYID[r.id]=r);
@@ -887,19 +881,12 @@ const LOVE_NOTE="Made with love, just for you.";
 function view(keepScroll){
   const a=document.getElementById("app");
   a.className="wrap"+(S.tab==="discover"||S.tab==="saved"?" wide":"");
-  // Chip rows scroll sideways; keep their position across re-renders so the chip you tapped stays put.
-  const rows=[...a.querySelectorAll(".scroller")].map(x=>x.scrollLeft);
   if(S.tab==="discover")a.innerHTML=vDiscover();
   if(S.tab==="saved")a.innerHTML=vSaved();
   if(S.tab==="shop")a.innerHTML=vShop();
   if(S.tab==="settings")a.innerHTML=vSettings();
   a.insertAdjacentHTML("beforeend",`<p class="lovenote">${esc(LOVE_NOTE)}</p>`);
   document.getElementById("tabs").innerHTML=vTabs();
-  a.querySelectorAll(".scroller").forEach((x,i)=>{
-    if(keepScroll&&rows[i]!==undefined){x.scrollLeft=rows[i];return;}
-    const on=x.querySelector('[aria-pressed="true"]');
-    if(on&&on.offsetLeft+on.offsetWidth>x.clientWidth)x.scrollLeft=on.offsetLeft-16;
-  });
   if(!keepScroll)window.scrollTo(0,0);
 }
 
@@ -931,19 +918,26 @@ function vBuilder(){
   <button class="btn btn-ghost" data-act="morebowls" style="margin:6px 0 10px">Build 12 more bowls</button>`;
 }
 
+// A collapsible filter group; closed it shows the current pick, so you know what's on without opening it.
+function dropdown(key,label,value,active,body){
+  return`<details class="dd" data-dd="${key}" ${S.cook.open[key]?"open":""}>
+    <summary><span class="ddl">${label}</span><span class="ddv${active?" on":""}">${esc(value)}</span></summary>
+    <div class="ddbody">${body}</div></details>`;
+}
+
 function vCook(){
   const c=S.cook;
   return`<input class="search" id="rq" type="search" enterkeyhint="search" placeholder="Search ${RECIPES.length} recipes — try “lentil” or “gnocchi”" value="${esc(c.q)}" autocomplete="off" aria-label="Search recipes">
-  <p class="rowlabel">Type <span>· pick one</span></p>
-  <div class="scroller" role="group" aria-label="Type">${KGROUPS.map(([id,l])=>
-    `<button class="chip plain sm" data-kind="${id}" aria-pressed="${c.kind===id}">${l}</button>`).join("")}</div>
-  <p class="rowlabel">Filters <span>· ${c.f.length?`${c.f.length} on · <button class="linkbtn" data-act="clearfilts">Clear</button>`:"mix and match"}</span></p>
-  <div class="scroller" role="group" aria-label="Filters">${FILTERS.map(([id,l])=>
-    `<button class="chip sm filt" data-filt="${id}" aria-pressed="${c.f.includes(id)}">${l}</button>`).join("")}</div>
-  <details class="cuis" ${c.cuOpen?"open":""}><summary>Cuisine · <span class="muted">${c.cu.length?esc(c.cu.map(id=>cui(id).name).join(", ")):"any"}</span></summary>
-   <div class="chips" style="margin-top:10px">${CUISINES.map(x=>
-    `<button class="chip sm" data-rcu="${x.id}" style="--dot:${x.color}" aria-pressed="${c.cu.includes(x.id)}"><span class="dot"></span>${esc(x.name)}</button>`).join("")}</div></details>
-  <div class="seg sm" role="group" aria-label="Sort" style="margin-top:12px">${SORTS.map(([id,l])=>
+  ${dropdown("type","Type",(KGROUPS.find(k=>k[0]===c.kind)||KGROUPS[0])[1],c.kind!=="all",
+    `<p class="ddhint">Pick one</p><div class="chips">${KGROUPS.map(([id,l])=>
+    `<button class="chip plain sm" data-kind="${id}" aria-pressed="${c.kind===id}">${l}</button>`).join("")}</div>`)}
+  ${dropdown("filt","Filters",c.f.length?FILTERS.filter(f=>c.f.includes(f[0])).map(f=>f[1]).join(", "):"none",c.f.length,
+    `<p class="ddhint">Mix and match${c.f.length?` · <button class="linkbtn" data-act="clearfilts">Clear filters</button>`:""}</p><div class="chips">${FILTERS.map(([id,l])=>
+    `<button class="chip sm filt" data-filt="${id}" aria-pressed="${c.f.includes(id)}">${l}</button>`).join("")}</div>`)}
+  ${dropdown("cu","Cuisine",c.cu.length?c.cu.map(id=>cui(id).name).join(", "):"any",c.cu.length,
+    `<p class="ddhint">Pick any${c.cu.length?` · <button class="linkbtn" data-act="clearcu">Clear cuisines</button>`:""}</p><div class="chips">${CUISINES.map(x=>
+    `<button class="chip sm" data-rcu="${x.id}" style="--dot:${x.color}" aria-pressed="${c.cu.includes(x.id)}"><span class="dot"></span>${esc(x.name)}</button>`).join("")}</div>`)}
+  <div class="seg sm" role="group" aria-label="Sort" style="margin-top:14px">${SORTS.map(([id,l])=>
     `<button data-sort="${id}" aria-pressed="${c.sort===id}">${l}</button>`).join("")}</div>
   <div id="rlist">${vRecipeList()}</div>`;
 }
@@ -1275,6 +1269,7 @@ document.addEventListener("click",e=>{
     if(list.length)recipeSheet(rnd(fresh.length?fresh:list));
     return;
   }
+  if(act==="clearcu"){S.cook.cu=[];cookShown=12;save();view(true);return;}
   if(act==="clearfilts"){S.cook.f=[];cookShown=12;save();view(true);return;}
   if(act==="clearfilt"){Object.assign(S.cook,{kind:"all",f:[],cu:[],q:""});cookShown=12;save();view(true);return;}
   if(act==="picker"){pickSel=[];pickerSheet();return;}
@@ -1333,34 +1328,10 @@ document.addEventListener("input",e=>{
   document.getElementById("rlist").innerHTML=vRecipeList();
 });
 document.addEventListener("toggle",e=>{
-  if(e.target.classList&&e.target.classList.contains("cuis")){S.cook.cuOpen=e.target.open;save();}
+  const k=e.target.dataset&&e.target.dataset.dd;
+  if(k){S.cook.open=Object.assign({},S.cook.open,{[k]:e.target.open});save();}
 },true);
 document.addEventListener("keydown",e=>{if(e.key==="Escape"&&sheet.classList.contains("open"))closeSheet();});
-
-// Chip rows scroll sideways by touch; give mouse users the wheel and click-and-drag too.
-document.addEventListener("wheel",e=>{
-  const x=e.target.closest(".scroller");
-  if(!x||x.scrollWidth<=x.clientWidth||Math.abs(e.deltaX)>Math.abs(e.deltaY))return;
-  const before=x.scrollLeft;x.scrollLeft+=e.deltaY;
-  if(x.scrollLeft!==before)e.preventDefault();
-},{passive:false});
-let drag=null;
-document.addEventListener("pointerdown",e=>{
-  const x=e.pointerType==="mouse"&&e.button===0&&e.target.closest(".scroller");
-  if(x&&x.scrollWidth>x.clientWidth)drag={x,startX:e.clientX,left:x.scrollLeft,moved:false};
-});
-document.addEventListener("pointermove",e=>{
-  if(!drag)return;
-  const dx=e.clientX-drag.startX;
-  if(!drag.moved&&Math.abs(dx)>5){drag.moved=true;drag.x.classList.add("dragging");}
-  if(drag.moved)drag.x.scrollLeft=drag.left-dx;
-});
-document.addEventListener("pointerup",()=>{
-  if(!drag)return;
-  const d=drag;drag=null;
-  // Let the click that ends a drag fire first, then re-enable the chips.
-  if(d.moved)setTimeout(()=>d.x.classList.remove("dragging"),0);
-});
 
 view();
 </script>
